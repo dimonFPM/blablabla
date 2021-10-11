@@ -15,8 +15,7 @@ def new_db():
         cursor.execute('''CREATE TABLE student (id integer PRIMARY KEY AUTOINCREMENT,
                                                 first_name text not null,
                                                 second_name text not null,
-                                                born_date date,
-                                                facultet_name text);''')
+                                                born_date date);''')
 
         cursor.execute('''CREATE TABLE facultet_name_list (id integer PRIMARY KEY AUTOINCREMENT,
                                                           name text,
@@ -25,7 +24,7 @@ def new_db():
         cursor.execute('''CREATE TABLE facultet_student (id_student integer not null,
                                                          id_facultet integer not null,
                                                          in_date date,
-                                                         out_date date,
+                                                         out_date date DEFAULT NULL
                                                          foreign key (id_student) references student(id),
                                                          foreign key (id_facultet) references facultet_name_list(id));''')
 
@@ -83,32 +82,50 @@ else:
 # конец подключения к базе данных
 
 try:
-    # cursor = sqlite_connection.cursor()
+    cursor = sqlite_connection.cursor()
     # cursor.execute('''INSERT INTO student VALUES (8, "Саша", "Широглазов", "1966-06-29 15:33");''')
     # cursor.execute('''SELECT * FROM student WHERE first_name="Саша";''')
     # cursor.execute('''SELECT * FROM student GROUP BY id;''')
     # rez = cursor.fetchall()
     # print(rez)
-    # cursor.execute('''UPDATE student SET first_name="Кирил" WHERE id=8''')
+    # cursor.execute('''UPDATE student SET first_name="Кирил", second_name="Волошин" WHERE first_name="Беслан";''')
     # cursor.close()
     # sqlite_connection.commit()
-    cursor = sqlite_connection.cursor()
+    # cursor = sqlite_connection.cursor()
 
-    name = [("Дима", "фпм", "2013-09-01"), ("Катя", "матфак", "2015-04-04"), ("Наталья", "эконом", "1987-03-23"),
-            ("Беслан", "фпм", "2015-09-01"), ("Андрей", "матфак", "1980-09-01")]
-    cursor.executemany(
-        '''INSERT INTO facultet_student (id_student, id_facultet, in_date) values (
-                                (select id from student where first_name=?),
-                                (select id from facultet_name_list where name=?), ?);''', name)
+    # name = [("Дима", "фпм", "2013-09-01"), ("Катя", "матфак", "2015-04-04"), ("Наталья", "эконом", "1987-03-23"),
+    #         ("Беслан", "фпм", "2015-09-01"), ("Андрей", "матфак", "1980-09-01")]
+    # cursor.executemany(
+    #     '''INSERT INTO facultet_student (id_student, id_facultet, in_date) values (
+    #                             (select id from student where first_name=?),
+    #                             (select id from facultet_name_list where name=?), ?);''', name)
+
     # cursor.execute('''CREATE TABLE student2 AS select * from student where 1=0;''')
-    cursor.execute('''SELECT student.first_name, student.second_name, student.born_date, facultet_student.in_date,
-                    facultet_name_list.name as facultet
-                    FROM student JOIN facultet_student
-                    ON student.id=facultet_student.id_student
-                    JOIN facultet_name_list
-                    ON facultet_student.id_facultet=facultet_name_list.id
-                    where facultet_name_list.id=1
-                    ;''')
+
+    # cursor.execute('''SELECT student.first_name, student.second_name, student.born_date, facultet_student.in_date,
+    #                 facultet_name_list.name as facultet
+    #                 FROM student JOIN facultet_student
+    #                 ON student.id=facultet_student.id_student
+    #                 JOIN facultet_name_list
+    #                 ON facultet_student.id_facultet=facultet_name_list.id
+    #                 where facultet_name_list.id=1
+    #                 ;''')
+
+
+
+    # студенты одного конкретного факультета
+    name = ("фпм",)
+    cursor.execute('''SELECT student.first_name, student.second_name, facultet_student.in_date as data_postuplenia
+                        FROM facultet_student  JOIN facultet_name_list
+                        ON facultet_name_list.id=facultet_student.id_facultet
+                        join student
+                        on student.id =facultet_student.id_student
+                        where facultet_name_list.name=?;
+                        ''', name)
+
+    ###
+
+
     result = cursor.fetchall()
     print(result)
     sqlite_connection.commit()
