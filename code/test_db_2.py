@@ -94,16 +94,28 @@ try:
     # sqlite_connection.commit()
     cursor = sqlite_connection.cursor()
 
-    name = ("максим", "фпм", "2013-09-01")
-    cursor.execute(
+    name = [("Дима", "фпм", "2013-09-01"), ("Катя", "матфак", "2015-04-04"), ("Наталья", "эконом", "1987-03-23"),
+            ("Беслан", "фпм", "2015-09-01"), ("Андрей", "матфак", "1980-09-01")]
+    cursor.executemany(
         '''INSERT INTO facultet_student (id_student, id_facultet, in_date) values (
                                 (select id from student where first_name=?),
                                 (select id from facultet_name_list where name=?), ?);''', name)
-
+    # cursor.execute('''CREATE TABLE student2 AS select * from student where 1=0;''')
+    cursor.execute('''SELECT student.first_name, student.second_name, student.born_date, facultet_student.in_date,
+                    facultet_name_list.name as facultet
+                    FROM student JOIN facultet_student
+                    ON student.id=facultet_student.id_student
+                    JOIN facultet_name_list
+                    ON facultet_student.id_facultet=facultet_name_list.id
+                    where facultet_name_list.id=1
+                    ;''')
+    result = cursor.fetchall()
+    print(result)
     sqlite_connection.commit()
     cursor.close()
+    print("данные в таблицу факультет_студень успешно добавленны")
 except sqlite3.Error as error:
-    print("Произошла ошибка в основном теле программы", error)
+    print("Произошла ошибка в основном теле программы:", error)
 
 if (sqlite_connection):
     sqlite_connection.close()
