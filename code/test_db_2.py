@@ -24,9 +24,9 @@ def new_db():
         cursor.execute('''CREATE TABLE facultet_student (id_student integer not null,
                                                          id_facultet integer not null,
                                                          in_date date,
-                                                         out_date date DEFAULT NULL
-                                                         foreign key (id_student) references student(id),
-                                                         foreign key (id_facultet) references facultet_name_list(id));''')
+                                                         out_date date DEFAULT NULL,
+                                                         foreign key (id_student) references student(id) on delete cascade,
+                                                         foreign key (id_facultet) references facultet_name_list(id) on delete cascade) ;''')
 
         insert_list = [("Дима", "Снетков", "1995-03-12"), ("Саша", "Широглазов", "1998-06-29"),
                        ("Лёша", "Пасевич", "1999-02-19"), ("Беслан", "Ибрагимов", "1998-04-13"),
@@ -93,12 +93,12 @@ try:
     # sqlite_connection.commit()
     # cursor = sqlite_connection.cursor()
 
-    # name = [("Дима", "фпм", "2013-09-01"), ("Катя", "матфак", "2015-04-04"), ("Наталья", "эконом", "1987-03-23"),
-    #         ("Беслан", "фпм", "2015-09-01"), ("Андрей", "матфак", "1980-09-01")]
-    # cursor.executemany(
-    #     '''INSERT INTO facultet_student (id_student, id_facultet, in_date) values (
-    #                             (select id from student where first_name=?),
-    #                             (select id from facultet_name_list where name=?), ?);''', name)
+    name = [("Дима", "фпм", "2013-09-01"), ("Катя", "матфак", "2015-04-04"), ("Наталья", "эконом", "1987-03-23"),
+            ("Беслан", "фпм", "2015-09-01"), ("Андрей", "матфак", "1980-09-01")]
+    cursor.executemany(
+        '''INSERT INTO facultet_student (id_student, id_facultet, in_date) values (
+                                (select id from student where first_name=?),
+                                (select id from facultet_name_list where name=?), ?);''', name)
 
     # cursor.execute('''CREATE TABLE student2 AS select * from student where 1=0;''')
 
@@ -111,8 +111,6 @@ try:
     #                 where facultet_name_list.id=1
     #                 ;''')
 
-
-
     # студенты одного конкретного факультета
     name = ("фпм",)
     cursor.execute('''SELECT student.first_name, student.second_name, facultet_student.in_date as data_postuplenia
@@ -124,8 +122,7 @@ try:
                         ''', name)
 
     ###
-
-
+    # cursor.execute('''delete from student where id==6;''')
     result = cursor.fetchall()
     print(result)
     sqlite_connection.commit()
