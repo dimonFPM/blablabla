@@ -56,6 +56,8 @@ paint_circle(canvas, tuple(list1))
 #алгоритм
 
 
+
+
 #########
 
 root.mainloop()
