@@ -1,5 +1,8 @@
+import time
 import tkinter as tk
+from loguru import logger
 
+# logger.remove()
 root = tk.Tk()
 root.title("стартовое окно")
 width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
@@ -7,29 +10,9 @@ width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
 root.geometry(f"{width_win}x{width_win}+0+0")
 root.resizable(False, False)
 
-size = 50  # int(input("введите размерность сетки: "))  # размерность сетки для поля
+size = 8  # int(input("введите размерность сетки: "))  # размерность сетки для поля
 shag = (width_win - width_win * 0.07) / size
 
-
-# def paint_canvas(root, size):  # отрисовка поля
-#     canvas_for_field = tk.Canvas(root, width=width_win - 49, height=width_win - 49, bg="white")
-#     canvas_for_field.pack(side=tk.TOP, padx=10, pady=10)
-#     canvas_for_field.create_rectangle(2, 2, width_win - 48, width_win - 48, outline='black')
-#     for i in range(size - 1):  # от 0 до size
-#         canvas_for_field.create_line(2 + shag * (i + 1), 2, 2 + shag * (i + 1), width_win - 48)
-#     for i in range(size - 1):
-#         canvas_for_field.create_line(2, 2 + shag * (i + 1), width_win - 48, 2 + shag * (i + 1))
-#     return canvas_for_field
-#
-#
-# def paint_circle(canvas, circle_tuple):#отрисовка кругов всего массива
-#     canvas.delete("circle")
-#     circle_list = list(circle_tuple)
-#     for i in range(len(circle_list)):
-#         for j in range(len(circle_list)):
-#             if circle_list[i][j][0] == 1:
-#                 canvas.create_oval(shag * i + 4, shag * j + 4, shag * i + shag, shag * j + shag, fill="red",
-#                                    tag="circle")
 
 def paint_canvas(root: tk.Tk, size: int):
     # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
@@ -60,63 +43,61 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     # Отрисовка кругов всего массива. Отрисовывает круги на Canvas согласно списку.
     # На вход получает экземляр класса  Canvas и список, элементы которого требуется отрисовать. Ничего не воозвращает.
     canvas.delete("circle")
-    circle_list = list(circle_tuple)
-    for i in range(len(circle_list)):
-        for j in range(len(circle_list)):
-            if circle_list[i][j][0] == 1:
-                canvas.create_oval(shag * i + width_win * 0.0065,
-                                   shag * j + width_win * 0.0065,
-                                   shag * i + shag,
+    # circle_list = list(circle_tuple)
+    for i in range(len(circle_tuple)):
+        for j in range(len(circle_tuple)):
+            if circle_tuple[i][j][0] == 1:
+                canvas.create_oval(shag * j + width_win * 0.0065,
+                                   shag * i + width_win * 0.0065,
                                    shag * j + shag,
+                                   shag * i + shag,
                                    fill="red",
                                    tag="circle")
 
 
 def sosedi_chek(i: int, j: int, list1: list):
     # место для описания
-    x = len(list1) - 1
-    match i, j:
-        # углы
-        case 0, 0:
-            summa = sum((list1[len(list1) - 1][len(list1) - 1][0], list1[len(list1) - 1][j][0],
-                         list1[len(list1) - 1][j + 1][0], list1[i][len(list1) - 1][0], list1[i - 1][j - 1][0],
-                         list1[i + 1][len(list1) - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-        case 0, x:
-            summa = sum((list1[len(list1) - 1][j - 1][0], list1[len(list1) - 1][j][0], list1[0][len(list1) - 1][0],
-                         list1[i][j - 1][0], list1[i][0][0], list1[i + 1][j - 1][0], list1[i + 1][j][0],
-                         list1[i + 1][0][0]))
 
-        case x, 0:
-            summa = sum((list1[i - 1][len(list1) - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                         list1[i][len(list1) - 1][0], list1[i - 1][j - 1][0],
-                         list1[0][len(list1) - 1][0], list1[0][j][0], list1[0][j + 1][0]))
-        case x, x:
-            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][0][0],
-                         list1[i][j - 1][0], list1[i - 1][0][0],
-                         list1[0][j - 1][0], list1[0][j][0], list1[0][0][0]))
-        # стороны
-        case 0, j:
+    x = len(list1[0]) - 1
+    if i == 0:
+        if j == 0:  # угол1
+            summa = sum((list1[x][x][0], list1[x][j][0],
+                         list1[x][j + 1][0], list1[i][x][0], list1[i][j + 1][0],
+                         list1[i + 1][x][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
+        elif j == x:  # угол 2
+            summa = sum((list1[x][j - 1][0], list1[x][j][0], list1[0][x][0],
+                         list1[i][j - 1][0], list1[0][0][0], list1[i + 1][j - 1][0], list1[i + 1][j][0],
+                         list1[i + 1][0][0]))
+        elif j != 0 and j != x:  # сторона при i=0
             summa = sum((list1[x][j - 1][0], list1[x][j][0], list1[x][j + 1][0],
                          list1[i][j - 1][0], list1[i][j + 1][0],
                          list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-        case x, j:
-            summma = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                          list1[i][j - 1][0], list1[i][j + 1][0],
-                          list1[0][j - 1][0], list1[0][j][0], list1[0][j + 1][0]))
-        case i, 0:
-            summma = sum((list1[i - 1][x][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                          list1[i][x][0], list1[i][j + 1][0],
-                          list1[i + 1][x][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-        case i, x:
-            summma = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                          list1[i][j - 1][0], list1[i][j + 1][0],
-                          list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-        # остальные элементы
-        case _:
-            summma = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                          list1[i][j - 1][0], list1[i][j + 1][0],
-                          list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-
+    elif i == x:
+        if j == 0:  # угол 3
+            summa = sum((list1[i - 1][x][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
+                         list1[i][x][0], list1[i][j + 1][0], list1[0][x][0],
+                         list1[0][j][0], list1[0][j + 1][0]))
+        elif j == x:  # угол 4
+            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][0][0],
+                         list1[i][j - 1][0], list1[i][0][0],
+                         list1[0][j - 1][0], list1[0][j][0], list1[0][0][0]))
+        elif j != 0 and j != x:  # сторона при i=x
+            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
+                         list1[i][j - 1][0], list1[i][j + 1][0],
+                         list1[0][j - 1][0], list1[0][j][0], list1[0][j + 1][0]))
+    elif i != 0 and i != x:
+        if j == 0:  # строна при j=0
+            summa = sum((list1[i - 1][x][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
+                         list1[i][x][0], list1[i][j + 1][0],
+                         list1[i + 1][x][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
+        elif j == x:  # сторона при j=x
+            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][0][0],
+                         list1[i][j - 1][0], list1[i][0][0],
+                         list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][0][0]))
+        else:
+            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
+                         list1[i][j - 1][0], list1[i][j + 1][0],
+                         list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
     match summa:
         case 0:
             return 0
@@ -133,35 +114,99 @@ def sosedi_chek(i: int, j: int, list1: list):
             return 0
 
 
-# создание тестового массива
-now_list = [[[0] for _ in range(size)] for _ in range(size)]  # генератор массива, потом надо заменить на список классов
-for i in range(len(now_list)):
-    print(now_list[i])
-print("\n")
-#############################
+@logger.catch()
+def action(now_list: tuple):
+    future_list = now_list
+    future_list = list(future_list)
+    for i in range(len(future_list)):
+        future_list[i] = list(future_list[i])
+        for j in range(len(future_list)):
+            future_list[i][j] = list(future_list[i][j])
+    logger.info(future_list)  # future_list - список
+    logger.info(f"{type(future_list)=}")
+    k = 0
+    logger.info(f"{len(now_list)=}\n{len(future_list)=}")
+    while True:
+        logger.info(f"{k=}")
+        for i in range(len(future_list)):
+            for j in range(len(future_list)):
+                future_list[i][j][0] = sosedi_chek(i, j, now_list)
+                logger.info(f"{i=} {j=}")
+        k += 1
+        # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
+        #     logger.info("конфигурации совпали, изменений больше небудет")
+        #     break
+
+        # root.after(4000, paint_circle(canvas, tuple(future_list)))
+        # root.update_idletasks()
+        # time.sleep(5)
+        if k == 1:
+            logger.info("финальное k={}".format(k))
+            break
+
+        # кортеж в список
+        now_list = list(now_list)
+        for i in range(len(now_list)):
+            now_list[i] = list(now_list[i])
+            for j in range(len(now_list)):
+                now_list[i][j] = list(now_list[i][j])
+
+        now_list = future_list
+        ####
+
+        # список в кортеж
+        for i in range(len(now_list)):
+            for j in range(len(now_list)):
+                now_list[i][j] = tuple(now_list[i][j])
+            now_list[i] = tuple(now_list[i])
+        now_list = tuple(now_list)
+
+        for i in range(len(future_list)):
+            future_list[i] = list(future_list[i])
+            for j in range(len(future_list)):
+                future_list[i][j] = list(future_list[i][j])
+
+        logger.info(f"{len(now_list)=}\n{len(future_list)=}")
+        logger.info(f"{future_list=}")
+        logger.info(f"{now_list=}")
+        #####3
+
+
+# def init():
 
 
 # заполнение тестового массива
-l = (0, 1, 4, 7, 3, 9, 46, 5, 43, 12, 7)
-l2 = (0, 1, 6, 3, 7, 5, 9, 34, 28, 6, 9)
-for i in range(len(l)):
-    now_list[l[i]][l2[i]][0] = 1
+now_list = [[[1], [1], [0], [0], [0], [0], [0], [0]],
+            [[1], [1], [0], [0], [0], [0], [0], [0]],
+            [[0], [0], [0], [0], [0], [0], [0], [0]],
+            [[0], [0], [0], [1], [1], [0], [0], [0]],
+            [[0], [0], [1], [1], [0], [0], [0], [0]],
+            [[1], [0], [0], [0], [0], [1], [1], [0]],
+            [[0], [1], [0], [0], [0], [0], [1], [0]],
+            [[0], [1], [1], [0], [0], [0], [1], [0]]]
+
+######трёх-мерный список в трёх-мерный кортеж
 for i in range(len(now_list)):
-    print(now_list[i])
-# #############################
+    for j in range(len(now_list)):
+        now_list[i][j] = tuple(now_list[i][j])
+    now_list[i] = tuple(now_list[i])
+now_list = tuple(now_list)
+########
+
+# print("list1=", now_list)
+future_list = now_list
+# print("list2=", future_list)
+
+#####трёх-мерный кортеж в трёх-мерный список
+future_list = list(future_list)
+for i in range(len(future_list)):
+    future_list[i] = list(future_list[i])
+    for j in range(len(future_list)):
+        future_list[i][j] = list(future_list[i][j])
+########
 
 canvas = paint_canvas(root, size)
-paint_circle(canvas, tuple(now_list))
+paint_circle(canvas, now_list)
+# action(now_list)
 
-future_list = [[[] for _ in range(size)] for _ in range(size)]  ###############3
-# алгоритм
-while True:
-    # future_list.clear()
-    for i in range(len(now_list)):
-        for j in range(len(now_list)):
-            future_list[i][j][0] = sosedi_chek(i, j, now_list)
-    if now_list == future_list:
-        break
-    paint_circle(canvas, tuple(future_list))
-#########
 root.mainloop()

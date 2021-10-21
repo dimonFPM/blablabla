@@ -70,8 +70,9 @@ list1 = [[[1], [1], [0], [0], [0], [0], [0], [0]],
 for i in range(len(list1)):
     for j in range(len(list1)):
         list1[i][j] = tuple(list1[i][j])
-list1 = [tuple(i) for i in list1]
+    list1[i] = tuple(list1[i])
 list1 = tuple(list1)
+
 #####
 
 print("list1=", list1)
@@ -80,26 +81,21 @@ print("list2=", list2)
 
 #####трёх-мерный кортеж в трёх-мерный список
 list2 = list(list2)
-list2 = [list(i) for i in list2]
 for i in range(len(list2)):
+    list2[i] = list(list2[i])
     for j in range(len(list2)):
         list2[i][j] = list(list2[i][j])
 #######
 
-print("list2=", list2)
-
-for i in range(len(list2)):
-    for j in range(len(list2)):
-        print(f"{i=}", f"{j=}")
-        list2[i][j][0] = sosedi_chek(i, j, list1)
-
-# for i in range(len(list1)):
-#     print(list1[i])
-# print("\n")
+# print("list2=", list2)
+#
 # for i in range(len(list2)):
-#     print(list2[i])
-for i in list1:
-    print(i, "\n")
-print("\n")
-for i in list2:
-    print(i, "\n")
+#     for j in range(len(list2)):
+#         print(f"{i=}", f"{j=}")
+#         list2[i][j][0] = sosedi_chek(i, j, list1)
+#
+# for i in list1:
+#     print(i, "\n")
+# print("\n")
+# for i in list2:
+#     print(i, "\n")
