@@ -114,62 +114,68 @@ def sosedi_chek(i: int, j: int, list1: list):
             return 0
 
 
-@logger.catch()
-def action(now_list: tuple):
-    future_list = now_list
-    future_list = list(future_list)
+def motion():
+    global now_list
+    # logger.info(f"{k=}")
+    for i in range(len(future_list)):
+        for j in range(len(future_list)):
+            future_list[i][j][0] = sosedi_chek(i, j, now_list)
+            logger.info(f"{i=} {j=}")
+    # k += 1
+    # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
+    #     logger.info("конфигурации совпали, изменений больше небудет")
+    #     break
+    paint_circle(canvas, tuple(future_list))
+    # root.update_idletasks()
+    # root.after(1000)
+
+    # if k == 1:
+    #     logger.info("финальное k={}".format(k))
+    #     break
+
+    # кортеж в список
+    now_list = list(now_list)
+    for i in range(len(now_list)):
+        now_list[i] = list(now_list[i])
+        for j in range(len(now_list)):
+            now_list[i][j] = list(now_list[i][j])
+
+    now_list = future_list
+    ####
+
+    # список в кортеж
+    for i in range(len(now_list)):
+        for j in range(len(now_list)):
+            now_list[i][j] = tuple(now_list[i][j])
+        now_list[i] = tuple(now_list[i])
+    now_list = tuple(now_list)
+
     for i in range(len(future_list)):
         future_list[i] = list(future_list[i])
         for j in range(len(future_list)):
             future_list[i][j] = list(future_list[i][j])
+
+    # logger.info(f"{len(now_list)=}\n{len(future_list)=}")
+    # logger.info(f"{future_list=}")
+    # logger.info(f"{now_list=}")
+    root.after(1000,motion())
+    #####3
+
+
+@logger.catch()
+def action(now_list: tuple):
+    # future_list = now_list
+    # future_list = list(future_list)
+    # for i in range(len(future_list)):
+    #     future_list[i] = list(future_list[i])
+    #     for j in range(len(future_list)):
+    #         future_list[i][j] = list(future_list[i][j])
+
     logger.info(future_list)  # future_list - список
     logger.info(f"{type(future_list)=}")
     k = 0
     logger.info(f"{len(now_list)=}\n{len(future_list)=}")
-    while True:
-        logger.info(f"{k=}")
-        for i in range(len(future_list)):
-            for j in range(len(future_list)):
-                future_list[i][j][0] = sosedi_chek(i, j, now_list)
-                logger.info(f"{i=} {j=}")
-        k += 1
-        # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
-        #     logger.info("конфигурации совпали, изменений больше небудет")
-        #     break
-        paint_circle(canvas, tuple(future_list))
-        root.update_idletasks()
-        root.after(1000)
-
-        if k == 1:
-            logger.info("финальное k={}".format(k))
-            break
-
-        # кортеж в список
-        now_list = list(now_list)
-        for i in range(len(now_list)):
-            now_list[i] = list(now_list[i])
-            for j in range(len(now_list)):
-                now_list[i][j] = list(now_list[i][j])
-
-        now_list = future_list
-        ####
-
-        # список в кортеж
-        for i in range(len(now_list)):
-            for j in range(len(now_list)):
-                now_list[i][j] = tuple(now_list[i][j])
-            now_list[i] = tuple(now_list[i])
-        now_list = tuple(now_list)
-
-        for i in range(len(future_list)):
-            future_list[i] = list(future_list[i])
-            for j in range(len(future_list)):
-                future_list[i][j] = list(future_list[i][j])
-
-        logger.info(f"{len(now_list)=}\n{len(future_list)=}")
-        logger.info(f"{future_list=}")
-        logger.info(f"{now_list=}")
-        #####3
+    motion()
 
 
 # def init():
@@ -206,7 +212,7 @@ for i in range(len(future_list)):
 ########
 
 canvas = paint_canvas(root, size)
-paint_circle(canvas, now_list)
+# paint_circle(canvas, now_list)
 action(now_list)
 
 root.mainloop()
