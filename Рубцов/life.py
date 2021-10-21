@@ -136,10 +136,10 @@ def action(now_list: tuple):
         # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
         #     logger.info("конфигурации совпали, изменений больше небудет")
         #     break
+        paint_circle(canvas, tuple(future_list))
+        root.update_idletasks()
+        root.after(1000)
 
-        # root.after(4000, paint_circle(canvas, tuple(future_list)))
-        # root.update_idletasks()
-        # time.sleep(5)
         if k == 1:
             logger.info("финальное k={}".format(k))
             break
@@ -207,6 +207,6 @@ for i in range(len(future_list)):
 
 canvas = paint_canvas(root, size)
 paint_circle(canvas, now_list)
-# action(now_list)
+action(now_list)
 
 root.mainloop()
