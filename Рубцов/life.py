@@ -3,6 +3,8 @@ import tkinter as tk
 from loguru import logger
 import tkinter.messagebox as mbox
 
+# region установка параметров окна приложения
+logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}")
 # logger.remove()
 root = tk.Tk()
 root.title("стартовое окно")
@@ -11,15 +13,8 @@ width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
 root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
 root.resizable(False, False)
 
-###########################
-size = 8  # int(input("введите размерность сетки: "))  # размерность сетки для поля
-if size > 0:  # проверка на 0
-    shag = (width_win - width_win * 0.07) / size
-else:
-    logger.error(f"Размерность сетки равна {size=}, невозможно расчитать шаг сетки.")
-    mbox.showerror("Ошибка", "Невозможно расчитать шаг. Рамернось поля не может быть равной нулю")
-    exit()
-###########################
+
+# endregion
 
 def paint_canvas(root: tk.Tk, size: int):
     # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
@@ -47,6 +42,7 @@ def paint_canvas(root: tk.Tk, size: int):
         return canvas_for_field
     else:
         mbox.showerror("Ошибка", "Размерность поля меньше 1")
+        logger.error("Размерность поля не может быть меньше 1")
 
 
 def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
@@ -179,13 +175,24 @@ def action(now_list: tuple):
         logger.info(f"{len(now_list)=}\n{len(future_list)=}")
         logger.info(f"{future_list=}")
         logger.info(f"{now_list=}")
-        #####3
+        #####
 
 
 # def init():
 
 
-# заполнение тестового массива
+# region установка и проверка размерности(size)
+size = 8  # int(input("введите размерность сетки: "))  # размерность сетки для поля
+if size > 0:  # проверка на 0
+    shag = (width_win - width_win * 0.07) / size
+else:
+    logger.error(f"Размерность сетки равна {size=}, невозможно расчитать шаг сетки.")
+    mbox.showerror("Ошибка", "Невозможно рассчитать шаг. Размернось поля не может быть равной нулю")
+    exit()
+
+# endregion
+
+# region заполнение тестового массива
 now_list = [[[1], [1], [0], [0], [0], [0], [0], [0]],
             [[1], [1], [0], [0], [0], [0], [0], [0]],
             [[0], [0], [0], [0], [0], [0], [0], [0]],
@@ -201,8 +208,9 @@ for i in range(len(now_list)):
         now_list[i][j] = tuple(now_list[i][j])
     now_list[i] = tuple(now_list[i])
 now_list = tuple(now_list)
-########
+# endregion
 
+# region удалить
 # # print("list1=", now_list)
 # future_list = now_list
 # # print("list2=", future_list)
@@ -213,15 +221,25 @@ now_list = tuple(now_list)
 #     future_list[i] = list(future_list[i])
 #     for j in range(len(future_list)):
 #         future_list[i][j] = list(future_list[i][j])
-# ########
+# ########удалить
+# endregion
 
+# region Canvas и  Frame
 canvas = paint_canvas(root, size)
-paint_circle(canvas, now_list)
+paint_circle(canvas, now_list)  # начальная конфигурация
 fr = tk.Frame(root)
 fr.pack(side=tk.LEFT)
-b_action = tk.Button(fr, text="action", command=lambda: action(now_list))
-b_action.pack(side=tk.TOP)
-b_cancel = tk.Button(fr, text="cancel")
-b_cancel.pack(side=tk.TOP)
+# endregion
 
+# region Button
+b_action = tk.Button(fr, text="action", command=lambda: action(now_list), width=int(width_win * 0.03125))
+b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+
+b_cancel = tk.Button(fr, text="cancel", width=int(width_win * 0.03125))
+b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+
+b_start_config = tk.Button(fr, text="начальное состояние", width=int(width_win * 0.03125),
+                           command=lambda: paint_circle(canvas, now_list))
+b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+# endregion
 root.mainloop()
