@@ -3,46 +3,67 @@ import tkinter as tk
 from loguru import logger
 import tkinter.messagebox as mbox
 
-# region установка параметров окна приложения
-logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}")
-# logger.remove()
-root = tk.Tk()
-root.title("стартовое окно")
-width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
-                                  root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
-root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
-root.resizable(False, False)
 
+# def check_size(e_size: tk.Entry):
+#     check_size_x = e_size.get()
+#     if check_size_x.find("-") == 0:
+#         x, *y = check_size_x
+#         print()
+#         if y.isnumeric():
+#             print("это число")
+#     pass
+#     if check_size_x.isnumeric():
+#         try:
+#             size = int(e_size.get())
+#             if size == 0 or size < 0:
+#                 e_size.config(fg="red")
+#                 logger.error("Введёное значение размерности равно 0 или меньше 0")
+#                 # pass
+#             else:
+#                 e_size.config(fg="black")
+#                 action(now_list)
+#                 # pass
+#         except:
+#             logger.error("введённая размерность является isnumeric, но не int")
+#             mbox.showerror("Ошибка", "Невозможно провести проверку введённого значения")
+#     else:
+#         logger.error("Введёное значение размерности не целое число")
+#         e_size.config(fg="red")
+#     # root.update()
 
-# endregion
-
-def paint_canvas(root: tk.Tk, size: int):
-    # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
-    # На вход подаётся экземпляр класса Tk и размер отисывываемой сетки.
-    # Функция возвращает экземпляр класса Canvas.
-    if size > 0:  # проверка на ноль, size не может быть равным нулём
-        canvas_for_field = tk.Canvas(root, width=width_win - width_win * 0.07, height=width_win - width_win * 0.07,
-                                     bg="white")
-        canvas_for_field.pack(side=tk.LEFT, padx=width_win * 0.015, pady=width_win * 0.015)
-        canvas_for_field.create_rectangle(0 + width_win * 0.003,
-                                          0 + width_win * 0.003,
-                                          width_win - width_win * 0.069,
-                                          width_win - width_win * 0.069,
-                                          outline='black')
+def paint_grid(canvas: tk.Canvas, size: int):
+    # описание
+    if size > 0:  # проверка на ноль, size не может быть равным нулю
+        canvas.delete("line")
+        canvas.delete("circle")
         for i in range(size - 1):  # от 0 до size
-            canvas_for_field.create_line(0 + width_win * 0.003 + shag * (i + 1),
-                                         0 + width_win * 0.003,  # 2
-                                         0 + width_win * 0.003 + shag * (i + 1),
-                                         width_win - width_win * 0.069)
+            canvas.create_line(0 + width_win * 0.003 + shag * (i + 1),
+                               0 + width_win * 0.003,  # 2
+                               0 + width_win * 0.003 + shag * (i + 1),
+                               width_win - width_win * 0.069, tag="line")
         for i in range(size - 1):
-            canvas_for_field.create_line(0 + width_win * 0.003,
-                                         0 + width_win * 0.003 + shag * (i + 1),
-                                         width_win - width_win * 0.069,
-                                         0 + width_win * 0.003 + shag * (i + 1))
-        return canvas_for_field
+            canvas.create_line(0 + width_win * 0.003,
+                               0 + width_win * 0.003 + shag * (i + 1),
+                               width_win - width_win * 0.069,
+                               0 + width_win * 0.003 + shag * (i + 1), tag="line")
     else:
         mbox.showerror("Ошибка", "Размерность поля меньше 1")
         logger.error("Размерность поля не может быть меньше 1")
+
+
+def paint_canvas(root: tk.Tk, size: int):
+    # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
+    # На вход подаётся экземпляр класса Tk.
+    # Функция возвращает экземпляр класса Canvas.
+    canvas_for_field = tk.Canvas(root, width=width_win - width_win * 0.07, height=width_win - width_win * 0.07,
+                                 bg="white")
+    canvas_for_field.pack(side=tk.LEFT, padx=width_win * 0.015, pady=width_win * 0.015)
+    canvas_for_field.create_rectangle(0 + width_win * 0.003,
+                                      0 + width_win * 0.003,
+                                      width_win - width_win * 0.069,
+                                      width_win - width_win * 0.069,
+                                      outline='black')
+    return canvas_for_field
 
 
 def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
@@ -181,6 +202,18 @@ def action(now_list: tuple):
 # def init():
 
 
+# region установка параметров окна приложения
+logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}")
+# logger.remove()
+root = tk.Tk()
+root.title("стартовое окно")
+width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
+                                  root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
+root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
+root.resizable(False, False)
+
+# endregion
+
 # region установка и проверка размерности(size)
 size = 8  # int(input("введите размерность сетки: "))  # размерность сетки для поля
 if size > 0:  # проверка на 0
@@ -226,20 +259,35 @@ now_list = tuple(now_list)
 
 # region Canvas и  Frame
 canvas = paint_canvas(root, size)
-paint_circle(canvas, now_list)  # начальная конфигурация
+paint_grid(canvas, size)
 fr = tk.Frame(root)
-fr.pack(side=tk.LEFT)
 # endregion
 
 # region Button
 b_action = tk.Button(fr, text="action", command=lambda: action(now_list), width=int(width_win * 0.03125))
-b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-
 b_cancel = tk.Button(fr, text="cancel", width=int(width_win * 0.03125))
-b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-
 b_start_config = tk.Button(fr, text="начальное состояние", width=int(width_win * 0.03125),
                            command=lambda: paint_circle(canvas, now_list))
+# endregion
+
+# region Label
+l_size = tk.Label(fr, text="Размерность поля:")
+# endregion
+
+# region Entry
+e_size = tk.Entry(fr, justify=tk.CENTER, fg="black")
+e_size.insert(0, "8")  #####удалить
+# endregion
+
+# region Pack
+fr.pack(side=tk.LEFT)
+l_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+e_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 # endregion
+
+
+# paint_circle(canvas, now_list)  # начальная конфигурация
 root.mainloop()
