@@ -1,42 +1,54 @@
 import time
 import tkinter as tk
 from loguru import logger
+import tkinter.messagebox as mbox
 
 # logger.remove()
 root = tk.Tk()
 root.title("стартовое окно")
 width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
                                   root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
-root.geometry(f"{width_win}x{width_win}+0+0")
+root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
 root.resizable(False, False)
 
+###########################
 size = 8  # int(input("введите размерность сетки: "))  # размерность сетки для поля
-shag = (width_win - width_win * 0.07) / size
+if size > 0:  # проверка на 0
+    shag = (width_win - width_win * 0.07) / size
+else:
+    logger.error(f"Размерность сетки равна {size=}, невозможно расчитать шаг сетки.")
+    mbox.showerror("Ошибка", "Невозможно расчитать шаг. Рамернось поля не может быть равной нулю")
+    exit()
 
+
+###########################
 
 def paint_canvas(root: tk.Tk, size: int):
     # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
     # На вход подаётся экземпляр класса Tk и размер отисывываемой сетки.
     # Функция возвращает экземпляр класса Canvas.
-    canvas_for_field = tk.Canvas(root, width=width_win - width_win * 0.07, height=width_win - width_win * 0.07,
-                                 bg="white")
-    canvas_for_field.pack(side=tk.TOP, padx=width_win * 0.015, pady=width_win * 0.015)
-    canvas_for_field.create_rectangle(0 + width_win * 0.003,
-                                      0 + width_win * 0.003,
-                                      width_win - width_win * 0.069,
-                                      width_win - width_win * 0.069,
-                                      outline='black')
-    for i in range(size - 1):  # от 0 до size
-        canvas_for_field.create_line(0 + width_win * 0.003 + shag * (i + 1),
-                                     0 + width_win * 0.003,  # 2
-                                     0 + width_win * 0.003 + shag * (i + 1),
-                                     width_win - width_win * 0.069)
-    for i in range(size - 1):
-        canvas_for_field.create_line(0 + width_win * 0.003,
-                                     0 + width_win * 0.003 + shag * (i + 1),
-                                     width_win - width_win * 0.069,
-                                     0 + width_win * 0.003 + shag * (i + 1))
-    return canvas_for_field
+    if size > 0:  # проверка на ноль, size не может быть равным нулём
+        canvas_for_field = tk.Canvas(root, width=width_win - width_win * 0.07, height=width_win - width_win * 0.07,
+                                     bg="white")
+        canvas_for_field.pack(side=tk.LEFT, padx=width_win * 0.015, pady=width_win * 0.015)
+        canvas_for_field.create_rectangle(0 + width_win * 0.003,
+                                          0 + width_win * 0.003,
+                                          width_win - width_win * 0.069,
+                                          width_win - width_win * 0.069,
+                                          outline='black')
+        for i in range(size - 1):  # от 0 до size
+            canvas_for_field.create_line(0 + width_win * 0.003 + shag * (i + 1),
+                                         0 + width_win * 0.003,  # 2
+                                         0 + width_win * 0.003 + shag * (i + 1),
+                                         width_win - width_win * 0.069)
+        for i in range(size - 1):
+            canvas_for_field.create_line(0 + width_win * 0.003,
+                                         0 + width_win * 0.003 + shag * (i + 1),
+                                         width_win - width_win * 0.069,
+                                         0 + width_win * 0.003 + shag * (i + 1))
+        return canvas_for_field
+    else:
+        mbox.showerror("Ошибка", "Размерность поля меньше 1")
 
 
 def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
@@ -137,10 +149,10 @@ def action(now_list: tuple):
         #     logger.info("конфигурации совпали, изменений больше небудет")
         #     break
         paint_circle(canvas, tuple(future_list))
-        root.update_idletasks()
-        root.after(1000)
+        canvas.update()
+        time.sleep(0.5)
 
-        if k == 1:
+        if k == 10:
             logger.info("финальное k={}".format(k))
             break
 
@@ -193,20 +205,25 @@ for i in range(len(now_list)):
 now_list = tuple(now_list)
 ########
 
-# print("list1=", now_list)
-future_list = now_list
-# print("list2=", future_list)
-
-#####трёх-мерный кортеж в трёх-мерный список
-future_list = list(future_list)
-for i in range(len(future_list)):
-    future_list[i] = list(future_list[i])
-    for j in range(len(future_list)):
-        future_list[i][j] = list(future_list[i][j])
-########
+# # print("list1=", now_list)
+# future_list = now_list
+# # print("list2=", future_list)
+#
+# #####трёх-мерный кортеж в трёх-мерный список
+# future_list = list(future_list)
+# for i in range(len(future_list)):
+#     future_list[i] = list(future_list[i])
+#     for j in range(len(future_list)):
+#         future_list[i][j] = list(future_list[i][j])
+# ########
 
 canvas = paint_canvas(root, size)
 paint_circle(canvas, now_list)
-action(now_list)
+fr = tk.Frame(root)
+fr.pack(side=tk.LEFT)
+b_action = tk.Button(fr, text="action", command=lambda: action(now_list))
+b_action.pack(side=tk.TOP)
+b_cancel = tk.Button(fr, text="cancel")
+b_cancel.pack(side=tk.TOP)
 
 root.mainloop()
