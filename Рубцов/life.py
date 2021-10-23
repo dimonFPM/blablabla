@@ -52,7 +52,7 @@ def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
         logger.error("Размерность поля не может быть меньше 1")
 
 
-def paint_canvas(root: tk.Tk, size: int):
+def paint_canvas(root: tk.Tk, width_win: int):
     # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
     # На вход подаётся экземпляр класса Tk.
     # Функция возвращает экземпляр класса Canvas.
@@ -71,7 +71,7 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     # Отрисовка кругов всего массива. Отрисовывает круги на Canvas согласно списку.
     # На вход получает экземляр класса  Canvas и список, элементы которого требуется отрисовать. Ничего не воозвращает.
     canvas.delete("circle")
-    shag = (width_win - width_win * 0.07) / int(size.get())#######################передаь ширину и размер
+    shag = (width_win - width_win * 0.07) / int(size.get())  #######################передаь ширину и размер
     for i in range(len(circle_tuple)):
         for j in range(len(circle_tuple)):
             if circle_tuple[i][j][0] == 1:
@@ -158,11 +158,12 @@ def check_size(*args):
             logger.info("e_size либо отрицательное либо текстовое значение")
     else:
         logger.info("e_size пустое поле")
+        e_size.config(fg='red')
 
 
 @logger.catch()
 def action(now_list: tuple):
-    shag = (width_win - width_win * 0.07) / int(size.get())#######################передаь ширину и размер
+    shag = (width_win - width_win * 0.07) / int(size.get())  #######################передаь ширину и размер
     future_list = now_list
     future_list = list(future_list)
     for i in range(len(future_list)):
@@ -219,7 +220,7 @@ def action(now_list: tuple):
         #####
 
 
-# def init():
+# def list_generation(now_list):
 
 
 # region установка параметров окна приложения
@@ -231,17 +232,6 @@ width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
                                   root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
 root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
 root.resizable(False, False)
-
-# endregion
-
-# region установка и проверка размерности(size)
-size = 0  # int(input("введите размерность сетки: "))  # размерность сетки для поля
-# if size > 0:  # проверка на 0
-#     shag = (width_win - width_win * 0.07) / size
-# else:
-#     logger.error(f"Размерность сетки равна {size=}, невозможно расчитать шаг сетки.")
-#     mbox.showerror("Ошибка", "Невозможно рассчитать шаг. Размернось поля не может быть равной нулю")
-#     exit()
 
 # endregion
 
@@ -278,8 +268,7 @@ now_list = tuple(now_list)
 # endregion
 
 # region Canvas и  Frame
-canvas = paint_canvas(root, size)
-# paint_grid(canvas, width_win, size)
+canvas = paint_canvas(root, width_win)
 fr = tk.Frame(root)
 # endregion
 
@@ -291,25 +280,27 @@ b_start_config = tk.Button(fr, text="начальное состояние", wid
 # endregion
 
 # region Label
-l_size = tk.Label(fr, text="Размерность поля:")
+l_size = tk.Label(fr, text="Размерность поля:", width=int(width_win * 0.03125))
+l_nomer_age = tk.Label(fr, text="Номер поколения", width=int(width_win * 0.03125))
 # endregion
 
 # region Entry
 size = tk.StringVar()
 size.trace('w', check_size)
-e_size = tk.Entry(fr, justify=tk.CENTER, fg="black", textvariable=size)
-# e_size.insert(0, "8")  #####удалить
+e_size = tk.Entry(fr, justify=tk.CENTER, fg="black", textvariable=size, width=int(width_win * 0.03125))
+e_size.insert(0, "8")  #####удалить
+e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125))
 # endregion
 
 # region Pack
 fr.pack(side=tk.LEFT)
 l_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 e_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+l_nomer_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+e_nomer_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 # endregion
 
-
-# paint_circle(canvas, now_list)  # начальная конфигурация
 root.mainloop()
