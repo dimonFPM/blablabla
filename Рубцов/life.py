@@ -31,9 +31,10 @@ import tkinter.messagebox as mbox
 #         e_size.config(fg="red")
 #     # root.update()
 
-def paint_grid(canvas: tk.Canvas, size: int):
+def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
     # описание
     if size > 0:  # проверка на ноль, size не может быть равным нулю
+        shag = (width_win - width_win * 0.07) / size
         canvas.delete("line")
         canvas.delete("circle")
         for i in range(size - 1):  # от 0 до size
@@ -70,7 +71,7 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     # Отрисовка кругов всего массива. Отрисовывает круги на Canvas согласно списку.
     # На вход получает экземляр класса  Canvas и список, элементы которого требуется отрисовать. Ничего не воозвращает.
     canvas.delete("circle")
-    # circle_list = list(circle_tuple)
+    shag = (width_win - width_win * 0.07) / int(size.get())#######################передаь ширину и размер
     for i in range(len(circle_tuple)):
         for j in range(len(circle_tuple)):
             if circle_tuple[i][j][0] == 1:
@@ -141,8 +142,27 @@ def sosedi_chek(i: int, j: int, list1: list):
             return 0
 
 
+def check_size(*args):
+    x = e_size.get()
+    if x != "":
+        if x.isnumeric():
+            if int(e_size.get()) > 0:
+                size = int(e_size.get())
+                e_size.config(fg='black')
+                logger.info(f"size={int(e_size.get())}")
+                paint_grid(canvas, width_win, size)
+            else:
+                e_size.config(fg='red')
+        else:
+            e_size.config(fg='red')
+            logger.info("e_size либо отрицательное либо текстовое значение")
+    else:
+        logger.info("e_size пустое поле")
+
+
 @logger.catch()
 def action(now_list: tuple):
+    shag = (width_win - width_win * 0.07) / int(size.get())#######################передаь ширину и размер
     future_list = now_list
     future_list = list(future_list)
     for i in range(len(future_list)):
@@ -215,13 +235,13 @@ root.resizable(False, False)
 # endregion
 
 # region установка и проверка размерности(size)
-size = 8  # int(input("введите размерность сетки: "))  # размерность сетки для поля
-if size > 0:  # проверка на 0
-    shag = (width_win - width_win * 0.07) / size
-else:
-    logger.error(f"Размерность сетки равна {size=}, невозможно расчитать шаг сетки.")
-    mbox.showerror("Ошибка", "Невозможно рассчитать шаг. Размернось поля не может быть равной нулю")
-    exit()
+size = 0  # int(input("введите размерность сетки: "))  # размерность сетки для поля
+# if size > 0:  # проверка на 0
+#     shag = (width_win - width_win * 0.07) / size
+# else:
+#     logger.error(f"Размерность сетки равна {size=}, невозможно расчитать шаг сетки.")
+#     mbox.showerror("Ошибка", "Невозможно рассчитать шаг. Размернось поля не может быть равной нулю")
+#     exit()
 
 # endregion
 
@@ -259,7 +279,7 @@ now_list = tuple(now_list)
 
 # region Canvas и  Frame
 canvas = paint_canvas(root, size)
-paint_grid(canvas, size)
+# paint_grid(canvas, width_win, size)
 fr = tk.Frame(root)
 # endregion
 
@@ -275,8 +295,10 @@ l_size = tk.Label(fr, text="Размерность поля:")
 # endregion
 
 # region Entry
-e_size = tk.Entry(fr, justify=tk.CENTER, fg="black")
-e_size.insert(0, "8")  #####удалить
+size = tk.StringVar()
+size.trace('w', check_size)
+e_size = tk.Entry(fr, justify=tk.CENTER, fg="black", textvariable=size)
+# e_size.insert(0, "8")  #####удалить
 # endregion
 
 # region Pack
