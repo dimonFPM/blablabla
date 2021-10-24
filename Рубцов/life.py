@@ -2,6 +2,7 @@ import time
 import tkinter as tk
 from loguru import logger
 import tkinter.messagebox as mbox
+import random
 
 
 # def check_size(e_size: tk.Entry):
@@ -173,6 +174,7 @@ def action(now_list: tuple):
     logger.info(future_list)  # future_list - список
     logger.info(f"{type(future_list)=}")
     k = 0
+    l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
     logger.info(f"{len(now_list)=}\n{len(future_list)=}")
     while True:
         logger.info(f"{k=}")
@@ -184,6 +186,7 @@ def action(now_list: tuple):
         # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
         #     logger.info("конфигурации совпали, изменений больше небудет")
         #     break
+        l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
         paint_circle(canvas, tuple(future_list))
         canvas.update()
         time.sleep(0.5)
@@ -220,10 +223,25 @@ def action(now_list: tuple):
         #####
 
 
-# def list_generation(now_list):
+def list_generation(e_size: tk.Entry):
+    if e_size["fg"] == "black":
+        size = int(e_size.get())
+        now_list = []
+        for i in range(size):
+            for j in range(size):
+                now_list[i][j] = []##########################
+        for i in range(len(now_list)):
+            for j in range(len(now_list)):
+                now_list[i][j][0] = tuple(now_list[i][j][0])
+            now_list[i] = tuple(now_list[i])
+        now_list = tuple(now_list)
+        logger.info(f"{type(now_list)=}")
+        paint_circle(canvas, now_list)
+        return now_list
+
+    # region установка параметров окна приложения
 
 
-# region установка параметров окна приложения
 logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}")
 # logger.remove()
 root = tk.Tk()
@@ -236,21 +254,21 @@ root.resizable(False, False)
 # endregion
 
 # region заполнение тестового массива
-now_list = [[[1], [1], [0], [0], [0], [0], [0], [0]],
-            [[1], [1], [0], [0], [0], [0], [0], [0]],
-            [[0], [0], [0], [0], [0], [0], [0], [0]],
-            [[0], [0], [0], [1], [1], [0], [0], [0]],
-            [[0], [0], [1], [1], [0], [0], [0], [0]],
-            [[1], [0], [0], [0], [0], [1], [1], [0]],
-            [[0], [1], [0], [0], [0], [0], [1], [0]],
-            [[0], [1], [1], [0], [0], [0], [1], [0]]]
-
-######трёх-мерный список в трёх-мерный кортеж
-for i in range(len(now_list)):
-    for j in range(len(now_list)):
-        now_list[i][j] = tuple(now_list[i][j])
-    now_list[i] = tuple(now_list[i])
-now_list = tuple(now_list)
+# now_list = [[[1], [1], [0], [0], [0], [0], [0], [0]],
+#             [[1], [1], [0], [0], [0], [0], [0], [0]],
+#             [[0], [0], [0], [0], [0], [0], [0], [0]],
+#             [[0], [0], [0], [1], [1], [0], [0], [0]],
+#             [[0], [0], [1], [1], [0], [0], [0], [0]],
+#             [[1], [0], [0], [0], [0], [1], [1], [0]],
+#             [[0], [1], [0], [0], [0], [0], [1], [0]],
+#             [[0], [1], [1], [0], [0], [0], [1], [0]]]
+#
+# ######трёх-мерный список в трёх-мерный кортеж
+# for i in range(len(now_list)):
+#     for j in range(len(now_list)):
+#         now_list[i][j] = tuple(now_list[i][j])
+#     now_list[i] = tuple(now_list[i])
+# now_list = tuple(now_list)
 # endregion
 
 # region удалить
@@ -282,6 +300,7 @@ b_start_config = tk.Button(fr, text="начальное состояние", wid
 # region Label
 l_size = tk.Label(fr, text="Размерность поля:", width=int(width_win * 0.03125))
 l_nomer_age = tk.Label(fr, text="Номер поколения", width=int(width_win * 0.03125))
+l_age = tk.Label(fr, text="0", width=int(width_win * 0.01156), bg="gray", height=int(width_win * 0.01156), font="16")
 # endregion
 
 # region Entry
@@ -294,6 +313,7 @@ e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 
 
 # region Pack
 fr.pack(side=tk.LEFT)
+l_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 l_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 e_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 l_nomer_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
@@ -302,5 +322,7 @@ b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 
 b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 # endregion
+
+now_list = list_generation(e_size)
 
 root.mainloop()
