@@ -18,7 +18,7 @@ def new_db():
                                                 born_date date);''')
 
         cursor.execute('''CREATE TABLE facultet_name_list (id integer PRIMARY KEY AUTOINCREMENT,
-                                                          name text,
+                                                          name text NOT NULL,
                                                           create_date date);''')
 
         cursor.execute('''CREATE TABLE facultet_student (id_student integer not null,
