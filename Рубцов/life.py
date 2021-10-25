@@ -57,7 +57,7 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
                                    tag="circle")
 
 
-def list_generation(e_size: tk.Entry, procent_zapolnenia=5) -> tuple:
+def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
     logger.info(f"Запущенна функция list_generation (size={int(e_size.get())}, {procent_zapolnenia=}%)")
     if e_size["fg"] == "black":
         size = int(e_size.get())
