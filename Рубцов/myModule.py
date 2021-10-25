@@ -99,3 +99,36 @@ for i in range(len(list2)):
 # print("\n")
 # for i in list2:
 #     print(i, "\n")
+
+
+# region заполнение тестового массива
+# now_list = [[[1], [1], [0], [0], [0], [0], [0], [0]],
+#             [[1], [1], [0], [0], [0], [0], [0], [0]],
+#             [[0], [0], [0], [0], [0], [0], [0], [0]],
+#             [[0], [0], [0], [1], [1], [0], [0], [0]],
+#             [[0], [0], [1], [1], [0], [0], [0], [0]],
+#             [[1], [0], [0], [0], [0], [1], [1], [0]],
+#             [[0], [1], [0], [0], [0], [0], [1], [0]],
+#             [[0], [1], [1], [0], [0], [0], [1], [0]]]
+#
+# ######трёх-мерный список в трёх-мерный кортеж
+# for i in range(len(now_list)):
+#     for j in range(len(now_list)):
+#         now_list[i][j] = tuple(now_list[i][j])
+#     now_list[i] = tuple(now_list[i])
+# now_list = tuple(now_list)
+# endregion н
+
+# region удалить
+# # print("list1=", now_list)
+# future_list = now_list
+# # print("list2=", future_list)
+#
+# #####трёх-мерный кортеж в трёх-мерный список
+# future_list = list(future_list)
+# for i in range(len(future_list)):
+#     future_list[i] = list(future_list[i])
+#     for j in range(len(future_list)):
+#         future_list[i][j] = list(future_list[i][j])
+# ########удалить
+# endregion

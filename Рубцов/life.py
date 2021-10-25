@@ -5,33 +5,6 @@ import tkinter.messagebox as mbox
 import random
 
 
-# def check_size(e_size: tk.Entry):
-#     check_size_x = e_size.get()
-#     if check_size_x.find("-") == 0:
-#         x, *y = check_size_x
-#         print()
-#         if y.isnumeric():
-#             print("это число")
-#     pass
-#     if check_size_x.isnumeric():
-#         try:
-#             size = int(e_size.get())
-#             if size == 0 or size < 0:
-#                 e_size.config(fg="red")
-#                 logger.error("Введёное значение размерности равно 0 или меньше 0")
-#                 # pass
-#             else:
-#                 e_size.config(fg="black")
-#                 action(now_list)
-#                 # pass
-#         except:
-#             logger.error("введённая размерность является isnumeric, но не int")
-#             mbox.showerror("Ошибка", "Невозможно провести проверку введённого значения")
-#     else:
-#         logger.error("Введёное значение размерности не целое число")
-#         e_size.config(fg="red")
-#     # root.update()
-
 def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
     # описание
     if size > 0:  # проверка на ноль, size не может быть равным нулю
@@ -53,7 +26,7 @@ def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
         logger.error("Размерность поля не может быть меньше 1")
 
 
-def paint_canvas(root: tk.Tk, width_win: int):
+def paint_canvas(root: tk.Tk, width_win: int) -> tk.Canvas:
     # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
     # На вход подаётся экземпляр класса Tk.
     # Функция возвращает экземпляр класса Canvas.
@@ -84,7 +57,42 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
                                    tag="circle")
 
 
-def sosedi_chek(i: int, j: int, list1: list):
+def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
+    logger.info(f"Запущенна функция list_generation (size={int(e_size.get())}, {procent_zapolnenia=}%)")
+    if e_size["fg"] == "black":
+        size = int(e_size.get())
+        count_element = size * size
+        logger.info(f"Количество клеток у поля={count_element}")
+        now_list = [[[0] for _ in range(size)] for _ in range(size)]
+        ####заполенение случайных полей
+        logger.info(f"Количество заполняемых клеток={int(count_element * (procent_zapolnenia / 100))}")
+        k = 0
+        while k <= count_element * (procent_zapolnenia / 100):
+            i = random.randint(0, size - 1)
+            j = random.randint(0, size - 1)
+            # logger.info(f"{i=} {j=}")
+            if now_list[i][j][0] == 0:
+                now_list[i][j][0] = 1
+                k += 1
+        ####
+        for i in range(len(now_list)):
+            for j in range(len(now_list)):
+                now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
+            now_list[i] = tuple(now_list[i])
+        now_list = tuple(now_list)
+        paint_circle(canvas, now_list)
+        return now_list
+    else:
+        mbox.showerror("Ошибка", "Размерность поля не целое число")
+        logger.error("Размерность поля не целое число")
+
+
+def generate_button(e_size: tk.Entry):
+    global now_list
+    now_list = list_generation(e_size)
+
+
+def sosedi_chek(i: int, j: int, list1: list) -> int:
     # место для описания
 
     x = len(list1[0]) - 1
@@ -143,17 +151,43 @@ def sosedi_chek(i: int, j: int, list1: list):
             return 0
 
 
+def check_nomer_age(*args):
+    logger.info("Запущенна функция check_nomer_age")
+    nomer_age = e_nomer_age.get()
+    if nomer_age != "":
+        if nomer_age.isnumeric():
+            if int(nomer_age) > 0:
+                nomer_age = int(nomer_age)
+                e_nomer_age.config(fg='black')
+                logger.info(f"nomer_age={int(e_nomer_age.get())}")
+            else:
+                e_nomer_age.config(fg='red')
+                logger.info("e_nomer_age=0")
+        else:
+            e_nomer_age.config(fg='red')
+            logger.info("e_nomer_age либо отрицательное либо текстовое значение")
+    else:
+        logger.info("e_nomer_age пустое поле")
+        e_nomer_age.config(fg='red')
+
+
 def check_size(*args):
-    x = e_size.get()
-    if x != "":
-        if x.isnumeric():
+    logger.info("Запущенна функция check_size")
+    if e_size.get() != "":
+        if e_size.get().isnumeric():
             if int(e_size.get()) > 0:
                 size = int(e_size.get())
                 e_size.config(fg='black')
                 logger.info(f"size={int(e_size.get())}")
-                paint_grid(canvas, width_win, size)
+                paint_grid(canvas, width_win, size)  # попробовать передать через необязательные аргументы функции
+                #######
+                global now_list
+                now_list = list_generation(e_size)
+                paint_circle(canvas, now_list)
+                #######
             else:
                 e_size.config(fg='red')
+                logger.info("e_size=0")
         else:
             e_size.config(fg='red')
             logger.info("e_size либо отрицательное либо текстовое значение")
@@ -163,8 +197,8 @@ def check_size(*args):
 
 
 @logger.catch()
-def action(now_list: tuple):
-    shag = (width_win - width_win * 0.07) / int(size.get())  #######################передаь ширину и размер
+def action(now_list: tuple, e_nomer_age: tk.Entry):
+    # shag = (width_win - width_win * 0.07) / int(size.get())  #######################передаь ширину и размер
     future_list = now_list
     future_list = list(future_list)
     for i in range(len(future_list)):
@@ -189,9 +223,9 @@ def action(now_list: tuple):
         l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
         paint_circle(canvas, tuple(future_list))
         canvas.update()
-        time.sleep(0.5)
+        time.sleep(0.2)
 
-        if k == 10:
+        if k == int(e_nomer_age.get()):
             logger.info("финальное k={}".format(k))
             break
 
@@ -223,25 +257,7 @@ def action(now_list: tuple):
         #####
 
 
-def list_generation(e_size: tk.Entry):
-    if e_size["fg"] == "black":
-        size = int(e_size.get())
-        now_list = []
-        for i in range(size):
-            for j in range(size):
-                now_list[i][j] = []##########################
-        for i in range(len(now_list)):
-            for j in range(len(now_list)):
-                now_list[i][j][0] = tuple(now_list[i][j][0])
-            now_list[i] = tuple(now_list[i])
-        now_list = tuple(now_list)
-        logger.info(f"{type(now_list)=}")
-        paint_circle(canvas, now_list)
-        return now_list
-
-    # region установка параметров окна приложения
-
-
+# region установка параметров окна приложения
 logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}")
 # logger.remove()
 root = tk.Tk()
@@ -250,40 +266,8 @@ width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
                                   root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
 root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
 root.resizable(False, False)
-
 # endregion
 
-# region заполнение тестового массива
-# now_list = [[[1], [1], [0], [0], [0], [0], [0], [0]],
-#             [[1], [1], [0], [0], [0], [0], [0], [0]],
-#             [[0], [0], [0], [0], [0], [0], [0], [0]],
-#             [[0], [0], [0], [1], [1], [0], [0], [0]],
-#             [[0], [0], [1], [1], [0], [0], [0], [0]],
-#             [[1], [0], [0], [0], [0], [1], [1], [0]],
-#             [[0], [1], [0], [0], [0], [0], [1], [0]],
-#             [[0], [1], [1], [0], [0], [0], [1], [0]]]
-#
-# ######трёх-мерный список в трёх-мерный кортеж
-# for i in range(len(now_list)):
-#     for j in range(len(now_list)):
-#         now_list[i][j] = tuple(now_list[i][j])
-#     now_list[i] = tuple(now_list[i])
-# now_list = tuple(now_list)
-# endregion
-
-# region удалить
-# # print("list1=", now_list)
-# future_list = now_list
-# # print("list2=", future_list)
-#
-# #####трёх-мерный кортеж в трёх-мерный список
-# future_list = list(future_list)
-# for i in range(len(future_list)):
-#     future_list[i] = list(future_list[i])
-#     for j in range(len(future_list)):
-#         future_list[i][j] = list(future_list[i][j])
-# ########удалить
-# endregion
 
 # region Canvas и  Frame
 canvas = paint_canvas(root, width_win)
@@ -291,10 +275,12 @@ fr = tk.Frame(root)
 # endregion
 
 # region Button
-b_action = tk.Button(fr, text="action", command=lambda: action(now_list), width=int(width_win * 0.03125))
-b_cancel = tk.Button(fr, text="cancel", width=int(width_win * 0.03125))
-b_start_config = tk.Button(fr, text="начальное состояние", width=int(width_win * 0.03125),
+b_action = tk.Button(fr, text="Поехали", command=lambda: action(now_list, e_nomer_age), width=int(width_win * 0.03125))
+b_cancel = tk.Button(fr, text="Отмена", width=int(width_win * 0.03125))
+b_start_config = tk.Button(fr, text="Начальное состояние", width=int(width_win * 0.03125),
                            command=lambda: paint_circle(canvas, now_list))
+b_generation = tk.Button(fr, text="Генерация\nначального состояния", width=int(width_win * 0.03125),
+                         command=lambda: generate_button(e_size))
 # endregion
 
 # region Label
@@ -307,8 +293,11 @@ l_age = tk.Label(fr, text="0", width=int(width_win * 0.01156), bg="gray", height
 size = tk.StringVar()
 size.trace('w', check_size)
 e_size = tk.Entry(fr, justify=tk.CENTER, fg="black", textvariable=size, width=int(width_win * 0.03125))
+nomer_age = tk.StringVar()
+nomer_age.trace('w', check_nomer_age)
+e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125), textvariable=nomer_age)
 e_size.insert(0, "8")  #####удалить
-e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125))
+e_nomer_age.insert(0, "10")  #####удалить
 # endregion
 
 # region Pack
@@ -319,10 +308,12 @@ e_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.
 l_nomer_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 e_nomer_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+# b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+b_generation.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 # endregion
 
 now_list = list_generation(e_size)
+paint_circle(canvas, now_list)
 
 root.mainloop()
