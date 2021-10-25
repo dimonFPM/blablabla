@@ -57,7 +57,7 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
                                    tag="circle")
 
 
-def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
+def list_generation(e_size: tk.Entry, procent_zapolnenia=5) -> tuple:
     logger.info(f"Запущенна функция list_generation (size={int(e_size.get())}, {procent_zapolnenia=}%)")
     if e_size["fg"] == "black":
         size = int(e_size.get())
@@ -65,9 +65,9 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
         logger.info(f"Количество клеток у поля={count_element}")
         now_list = [[[0] for _ in range(size)] for _ in range(size)]
         ####заполенение случайных полей
-        logger.info(f"Количество заполняемых клеток={int(count_element * (procent_zapolnenia / 100))}")
+        logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
         k = 0
-        while k <= count_element * (procent_zapolnenia / 100):
+        while k < round(count_element * (procent_zapolnenia / 100)):
             i = random.randint(0, size - 1)
             j = random.randint(0, size - 1)
             # logger.info(f"{i=} {j=}")
