@@ -258,7 +258,7 @@ def action(now_list: tuple, e_nomer_age: tk.Entry):
 
 
 # region установка параметров окна приложения
-logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}")
+logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
 # logger.remove()
 root = tk.Tk()
 root.title("стартовое окно")
@@ -314,6 +314,7 @@ b_generation.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_wi
 # endregion
 
 now_list = list_generation(e_size)
+
 paint_circle(canvas, now_list)
 
 root.mainloop()
