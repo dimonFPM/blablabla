@@ -52,8 +52,8 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     logger.info("вызвана функция paint_circle")
     canvas.delete("circle")
     shag = (width_win - width_win * 0.07) / int(size.get())  #######################передаь ширину и размер
-    for i in range(len(circle_tuple) - 1):
-        for j in range(len(circle_tuple) - 1):
+    for i in range(len(circle_tuple)):
+        for j in range(len(circle_tuple)):
             if circle_tuple[i][j][0] == 1:
                 canvas.create_oval(shag * j + width_win * 0.0065,
                                    shag * i + width_win * 0.0065,
@@ -66,43 +66,27 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
 def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
     logger.info(f"Вызвана функция list_generation (size={int(e_size.get())}, {procent_zapolnenia=}%)")
     if e_size["fg"] == "black":
-        # size = int(e_size.get())
-        # count_element = size * size
-        # logger.info(f"Количество клеток у поля={count_element}")
-        # now_list = [[[0] for _ in range(size + 1)] for _ in range(size + 1)]
-        # ####заполенение случайных полей
-        # logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
-        # k = 0
-        # while k < round(count_element * (procent_zapolnenia / 100)):
-        #     i = random.randint(0, size - 1)
-        #     j = random.randint(0, size - 1)
-        #     # logger.info(f"{i=} {j=}")
-        #     if now_list[i][j][0] == 0:
-        #         now_list[i][j][0] = 1
-        #         k += 1
-        # ####
-        # for i in range(size):
-        #     now_list[i][size][0] = now_list[i][0][0]
-        # for j in range(size + 1):
-        #     now_list[size][j][0] = now_list[0][j][0]
-        # logger.info(f"сгенерированный список")
-        # for i in range(len(now_list)):
-        #     logger.info(now_list[i])
-        # ####
-        # for i in range(len(now_list)):
-        #     for j in range(len(now_list)):
-        #         now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
-        #     now_list[i] = tuple(now_list[i])
-        # now_list = tuple(now_list)
-        # paint_circle(canvas, now_list)
-        now_list = (((1,), (0,), (0,), (0,), (1,)),
-                    ((0,), (0,), (1,), (1,), (0,)),
-                    ((0,), (1,), (1,), (0,), (0,)),
-                    ((0,), (1,), (1,), (1,), (0,)),
-                    ((1,), (0,), (0,), (0,), (1,)))
-        logger.info(f"сгенерированный список")
+        size = int(e_size.get())
+        count_element = size * size
+        logger.info(f"Количество клеток у поля={count_element}")
+        now_list = [[[0] for _ in range(size)] for _ in range(size)]
+        ####заполенение случайных полей
+        logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
+        k = 0
+        while k < round(count_element * (procent_zapolnenia / 100)):
+            i = random.randint(0, size - 1)
+            j = random.randint(0, size - 1)
+            # logger.info(f"{i=} {j=}")
+            if now_list[i][j][0] == 0:
+                now_list[i][j][0] = 1
+                k += 1
+        ####
         for i in range(len(now_list)):
-            logger.info(now_list[i])
+            for j in range(len(now_list)):
+                now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
+            now_list[i] = tuple(now_list[i])
+        now_list = tuple(now_list)
+        paint_circle(canvas, now_list)
         return now_list
     else:
         mbox.showerror("Ошибка", "Размерность поля не целое число")
@@ -110,7 +94,6 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
 
 
 def generate_button(e_size: tk.Entry):
-    logger.info("Вызвана функция generatate_button")
     global now_list
     now_list = list_generation(e_size)
 
@@ -118,8 +101,7 @@ def generate_button(e_size: tk.Entry):
 def sosedi_chek(i: int, j: int, list1: list) -> int:
     # место для описания
     logger.info("Вызвана функция sosedi_chek")
-    now = now_list[i][j][0]
-    x = len(list1[0]) - 2
+    x = len(list1[0]) - 1
     if i == 0:
         if j == 0:  # угол1
             summa = sum((list1[x][x][0], list1[x][j][0],
@@ -187,9 +169,6 @@ def sosedi_chek(i: int, j: int, list1: list) -> int:
                      list1[i][j - 1][0], list1[i][j + 1][0], "\n",
                      list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
     logger.info(f"{summa=}")
-    # print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
-    #          list1[i][j - 1][0], list1[i][j + 1][0], "\n",
-    #          list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
     print("\n")
     match summa:
         case 0:
@@ -252,13 +231,9 @@ def check_size(*args):
         e_size.config(fg='red')
 
 
-# def check_life(now_list: tuple, future_list: list) ->:
-
-
 @logger.catch()
 def action(now_list: tuple, e_nomer_age: tk.Entry):
     logger.info("Вызвана функция action")
-    size = int(e_size.get())
     future_list = now_list
     future_list = list(future_list)
     for i in range(len(future_list)):
@@ -272,18 +247,10 @@ def action(now_list: tuple, e_nomer_age: tk.Entry):
     logger.info(f"{len(now_list)=} {len(future_list)=}")
     while True:
         logger.info(f"{k=}")
-        for i in range(size):
-            for j in range(size):
-                logger.info(f"{i=} {j=}")
-                #########
-                # if now_list[i][j][1] == 1:
+        for i in range(len(future_list)):
+            for j in range(len(future_list)):
                 future_list[i][j][0] = sosedi_chek(i, j, now_list)
-                # if future_list[i][j][1] == now_list[i][j][1]:
-                #     future_list[i][j][1] =  # функция(now_list:tuple, future_list:list)->int
-                # else:
-                #     now_list[i][j][1] = 1
-                #########
-
+                logger.info(f"{i=} {j=}")
         k += 1
         # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
         #     logger.info("конфигурации совпали, изменений больше небудет")
