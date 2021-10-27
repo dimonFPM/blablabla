@@ -109,3 +109,4 @@ for i in range(1, len(a) - 1):
                     a[i][j - 1], a[i][j + 1],
                     a[i + 1][j - 1], a[i + 1][j], a[i + 1][j + 1]))
         print(f"{i=} {j=} {summa=}")
+
