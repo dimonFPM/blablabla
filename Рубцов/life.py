@@ -96,6 +96,7 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
             mbox.showerror("Ошибка", "Размерность поля не целое число")
             logger.error("Размерность поля не целое число")
     else:
+        logger.info(f"Запущен тестовый вариант номер {test}")
         now_list = (((1,), (0,), (0,), (0,)),
                     ((0,), (0,), (1,), (1,)),
                     ((0,), (1,), (1,), (0,)),
@@ -107,6 +108,11 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
 
 
 def generate_button(e_size: tk.Entry):
+    # if e_size["fg"] == "red" or e_procent_zapolnenia["fg"] == "red":
+    #     logger.error("Процент заполнения или размерность поля заданы не правильно")
+    #     mbox.showerror("Ошибка", "Процент заполнения или размерность поля заданы не правильно")
+    #
+
     global now_list
     now_list = list_generation(e_size)
 
@@ -244,66 +250,97 @@ def check_size(*args):
         e_size.config(fg='red')
 
 
+def check_procent_zapolnenia(*args):
+    logger.info("Вызвана функция check_procent_zapolnenia")
+    if e_procent_zapolnenia.get() != "":
+        if e_procent_zapolnenia.get().isnumeric():
+            if int(e_procent_zapolnenia.get()) > 0 and int(e_procent_zapolnenia.get()) < 100:
+                e_procent_zapolnenia.config(fg='black')
+                logger.info(f"procent_zapolnenia={int(e_procent_zapolnenia.get())}")
+            else:
+                e_size.config(fg='red')
+                logger.info("e_size=0 или 100 и более")
+        else:
+            e_size.config(fg='red')
+            logger.info("e_size либо отрицательное либо текстовое значение")
+    else:
+        logger.info("e_procent_zapolnenia пустое поле")
+        e_procent_zapolnenia.config(fg='red')
+
+
 @logger.catch()
-def action(now_list: tuple, e_nomer_age: tk.Entry):
+def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
     logger.info("Вызвана функция action")
-    future_list = now_list
-    future_list = list(future_list)
-    for i in range(len(future_list)):
-        future_list[i] = list(future_list[i])
-        for j in range(len(future_list)):
-            future_list[i][j] = list(future_list[i][j])
-    logger.info(future_list)  # future_list - список
-    logger.info(f"{type(future_list)=}")
-    k = 0
-    l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
-    logger.info(f"{len(now_list)=} {len(future_list)=}")
-    while True:
-        logger.info(f"{k=}")
-        for i in range(len(future_list)):
-            for j in range(len(future_list)):
-                logger.info(f"{i=} {j=}")
-                future_list[i][j][0] = sosedi_chek(i, j, now_list)
-
-        k += 1
-        # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
-        #     logger.info("конфигурации совпали, изменений больше небудет")
-        #     break
-        l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
-        paint_circle(canvas, tuple(future_list))
-        canvas.update()
-        time.sleep(0.2)
-
-        if k == int(e_nomer_age.get()):
-            logger.info("финальное k={}".format(k))
-            break
-
-        # кортеж в список
-        now_list = list(now_list)
-        for i in range(len(now_list)):
-            now_list[i] = list(now_list[i])
-            for j in range(len(now_list)):
-                now_list[i][j] = list(now_list[i][j])
-
-        now_list = future_list
-        ####
-
-        # список в кортеж
-        for i in range(len(now_list)):
-            for j in range(len(now_list)):
-                now_list[i][j] = tuple(now_list[i][j])
-            now_list[i] = tuple(now_list[i])
-        now_list = tuple(now_list)
-
+    if e_nomer_age["fg"] == "red":
+        logger.info("Номер поколения должен быть целым не отрицатьельным числом")
+        mbox.showerror("Ошибка", "Номер поколения должен быть целым не отрицательным числом")
+        # pass
+    elif e_size["fg"] == "red":
+        logger.info("Размерност поля должна быть целым положительным числом больше 0")
+        mbox.showerror("Ошибка", "Размерность поля должна быть целым положительным числом")
+        # pass
+    elif e_procent_zapolnenia["fg"] == "red":
+        logger.info("Процент заполнения <0 или >=100")
+        mbox.showerror("Ошибка", "Процент заполнения меньше нуля или больше или равен ста")
+        # pass
+    else:
+        future_list = now_list
+        future_list = list(future_list)
         for i in range(len(future_list)):
             future_list[i] = list(future_list[i])
             for j in range(len(future_list)):
                 future_list[i][j] = list(future_list[i][j])
+        logger.info(future_list)  # future_list - список
+        # logger.info(f"{type(future_list)=}")
+        k = 0
+        l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
+        logger.info(f"{len(now_list)=} {len(future_list)=}")
+        while True:
+            logger.info(f"{k=}")
+            for i in range(len(future_list)):
+                for j in range(len(future_list)):
+                    logger.info(f"{i=} {j=}")
+                    future_list[i][j][0] = sosedi_chek(i, j, now_list)
 
-        logger.info(f"{len(now_list)=}\n{len(future_list)=}")
-        logger.info(f"{future_list=}")
-        logger.info(f"{now_list=}")
-        #####
+            k += 1
+            # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
+            #     logger.info("конфигурации совпали, изменений больше небудет")
+            #     break
+            l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
+            paint_circle(canvas, tuple(future_list))
+            canvas.update()
+            time.sleep(0.2)
+
+            if k == int(e_nomer_age.get()):
+                logger.info("финальное k={}".format(k))
+                break
+
+            # кортеж в список
+            now_list = list(now_list)
+            for i in range(len(now_list)):
+                now_list[i] = list(now_list[i])
+                for j in range(len(now_list)):
+                    now_list[i][j] = list(now_list[i][j])
+
+            now_list = future_list
+            ####
+
+            # список в кортеж
+            for i in range(len(now_list)):
+                for j in range(len(now_list)):
+                    now_list[i][j] = tuple(now_list[i][j])
+                now_list[i] = tuple(now_list[i])
+            now_list = tuple(now_list)
+
+            for i in range(len(future_list)):
+                future_list[i] = list(future_list[i])
+                for j in range(len(future_list)):
+                    future_list[i][j] = list(future_list[i][j])
+
+            logger.info(f"{len(now_list)=}\n{len(future_list)=}")
+            logger.info(f"{future_list=}")
+            logger.info(f"{now_list=}")
+            #####
 
 
 # region установка параметров окна приложения
@@ -324,7 +361,8 @@ fr = tk.Frame(root)
 # endregion
 
 # region Button
-b_action = tk.Button(fr, text="Поехали", command=lambda: action(now_list, e_nomer_age), width=int(width_win * 0.03125))
+b_action = tk.Button(fr, text="Поехали", command=lambda: action(now_list, e_nomer_age, e_size),
+                     width=int(width_win * 0.03125))
 b_cancel = tk.Button(fr, text="Отмена", width=int(width_win * 0.03125))
 b_start_config = tk.Button(fr, text="Начальное состояние", width=int(width_win * 0.03125),
                            command=lambda: paint_circle(canvas, now_list))
@@ -336,17 +374,25 @@ b_generation = tk.Button(fr, text="Генерация\nначального со
 l_size = tk.Label(fr, text="Размерность поля:", width=int(width_win * 0.03125))
 l_nomer_age = tk.Label(fr, text="Номер поколения", width=int(width_win * 0.03125))
 l_age = tk.Label(fr, text="0", width=int(width_win * 0.01156), bg="gray", height=int(width_win * 0.01156), font="16")
+l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения поля", width=int(width_win * 0.03125))
 # endregion
 
 # region Entry
 size = tk.StringVar()
 size.trace('w', check_size)
 e_size = tk.Entry(fr, justify=tk.CENTER, fg="black", textvariable=size, width=int(width_win * 0.03125))
+
 nomer_age = tk.StringVar()
 nomer_age.trace('w', check_nomer_age)
 e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125), textvariable=nomer_age)
+
+procent_zapolnenia = tk.StringVar()
+procent_zapolnenia.trace("w", check_procent_zapolnenia)
+e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, width=int(width_win * 0.03125))
+
 e_size.insert(0, "4")  #####удалить
 e_nomer_age.insert(0, "1")  #####удалить
+
 # endregion
 
 # region Pack
@@ -360,6 +406,8 @@ b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 
 # b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_generation.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+l_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+e_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 # endregion
 
 

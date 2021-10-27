@@ -77,11 +77,35 @@
 # print(*a, sep="\n")
 #
 # print(a[-1][-1])
-now_list = (((1,), (0,), (0,), (0,), (1,)),
-            ((0,), (0,), (1,), (1,), (0,)),
-            ((0,), (1,), (1,), (0,), (0,)),
-            ((0,), (1,), (1,), (1,), (0,)),
-            ((1,), (0,), (0,), (0,), (1,)))
-logger.info(f"сгенерированный список")
-for i in range(len(now_list)):
-    logger.info(now_list[i])
+# now_list = (((1,), (0,), (0,), (0,), (1,)),
+#             ((0,), (0,), (1,), (1,), (0,)),
+#             ((0,), (1,), (1,), (0,), (0,)),
+#             ((0,), (1,), (1,), (1,), (0,)),
+#             ((1,), (0,), (0,), (0,), (1,)))
+# logger.info(f"сгенерированный список")
+# for i in range(len(now_list)):
+#     logger.info(now_list[i])
+import random
+
+size = 3
+a = [[0 for j in range(size + 2)] for i in range(size + 2)]
+for i in range(1, len(a) - 1):
+    for j in range(1, len(a) - 1):
+        a[i][j] = random.randint(0, 1)
+
+for j in range(1, len(a) - 1):
+    a[0][j] = a[len(a) - 2][j]
+    a[len(a) - 1][j] = a[1][j]
+
+for i in range(0, len(a)):
+    a[i][0] = a[i][len(a) - 2]
+    a[i][len(a) - 1] = a[i][1]
+
+print(*a, sep="\n")
+
+for i in range(1, len(a) - 1):
+    for j in range(1, len(a) - 1):
+        summa = sum((a[i - 1][j - 1], a[i - 1][j], a[i - 1][j + 1],
+                    a[i][j - 1], a[i][j + 1],
+                    a[i + 1][j - 1], a[i + 1][j], a[i + 1][j + 1]))
+        print(f"{i=} {j=} {summa=}")
