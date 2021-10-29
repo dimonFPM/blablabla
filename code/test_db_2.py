@@ -1,5 +1,7 @@
 import sqlite3
 
+sqlite_connection = None
+
 
 def new_db():
     global sqlite_connection
@@ -51,8 +53,6 @@ def new_db():
             print("база данных закрыта из-за ошибки при создании стартовых таблиц")
         exit()
 
-
-sqlite_connection = None
 
 check_config_file = open("../config2", "r")  # /////////////////////////продумать создание файла конфигурации
 check_config = check_config_file.read(1)

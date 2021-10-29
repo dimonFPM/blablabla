@@ -87,7 +87,7 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
                     now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
                 now_list[i] = tuple(now_list[i])
             now_list = tuple(now_list)
-            logger.info(f"сгенерированный список")
+            logger.info(f"Сгенерированный список:")
             for i in range(len(now_list)):
                 logger.info(now_list[i])
             paint_circle(canvas, now_list)
@@ -237,7 +237,7 @@ def check_size(*args):
                 #######
                 global now_list
                 now_list = list_generation(e_size)
-                paint_circle(canvas, now_list)
+                # paint_circle(canvas, now_list)
                 #######
             else:
                 e_size.config(fg='red')
