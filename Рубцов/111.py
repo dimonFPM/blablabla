@@ -88,7 +88,8 @@
 import random
 
 size = 3
-a = [[0 for j in range(size + 2)] for i in range(size + 2)]
+#######
+a = [[[0] for j in range(size + 2)] for i in range(size + 2)]
 for i in range(1, len(a) - 1):
     for j in range(1, len(a) - 1):
         a[i][j] = random.randint(0, 1)
@@ -100,8 +101,10 @@ for j in range(1, len(a) - 1):
 for i in range(0, len(a)):
     a[i][0] = a[i][len(a) - 2]
     a[i][len(a) - 1] = a[i][1]
-
+######3
 print(*a, sep="\n")
+
+
 
 for i in range(1, len(a) - 1):
     for j in range(1, len(a) - 1):

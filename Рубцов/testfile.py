@@ -5,7 +5,7 @@ import tkinter.messagebox as mbox
 import random
 
 logger.info("начало программы")
-now_list = None
+now_list = None  # глобальная переменная
 
 
 def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
@@ -52,62 +52,75 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     logger.info("вызвана функция paint_circle")
     canvas.delete("circle")
     shag = (width_win - width_win * 0.07) / int(size.get())  #######################передать ширину и размер
-    for i in range(len(circle_tuple)):
-        for j in range(len(circle_tuple)):
+    for i in range(1, len(circle_tuple) - 1):
+        for j in range(1, len(circle_tuple) - 1):
             if circle_tuple[i][j][0] == 1:
-                canvas.create_oval(shag * j + width_win * 0.0065,
-                                   shag * i + width_win * 0.0065,
-                                   shag * j + shag,
-                                   shag * i + shag,
+                canvas.create_oval(shag * (j - 1) + width_win * 0.0065,
+                                   shag * (i - 1) + width_win * 0.0065,
+                                   shag * (j - 1) + shag,
+                                   shag * (i - 1) + shag,
                                    fill="red",
                                    tag="circle")
 
 
 def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
     logger.info(f"Вызвана функция list_generation (size={int(e_size.get())}, {procent_zapolnenia=}%)")
-    if test != 1:
-        if e_size["fg"] == "black":
-            size = int(e_size.get())
-            count_element = size * size
-            logger.info(f"Количество клеток у поля={count_element}")
-            now_list = [[[0] for _ in range(size)] for _ in range(size)]
-            ####заполенение случайных полей
-            logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
-            k = 0
-            while k < round(count_element * (procent_zapolnenia / 100)):
-                i = random.randint(0, size - 1)
-                j = random.randint(0, size - 1)
-                # logger.info(f"{i=} {j=}")
-                if now_list[i][j][0] == 0:
-                    now_list[i][j][0] = 1
-                    k += 1
-            ####
-            for i in range(len(now_list)):
-                for j in range(len(now_list)):
-                    now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
-                now_list[i] = tuple(now_list[i])
-            now_list = tuple(now_list)
-            logger.info(f"Сгенерированный список:")
+    match test:
+        case 0:
+            if e_size["fg"] == "black":
+                size = int(e_size.get())
+                count_element = size * size
+                logger.info(f"Количество клеток у поля={count_element}")
+                now_list = [[[0, True] for j in range(size + 2)] for i in range(size + 2)]
+                ####заполенение случайных полей
+                logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
+                k = 0
+                while k < round(count_element * (procent_zapolnenia / 100)):
+                    logger.info(f"{k=}")
+                    i = random.randint(1, len(now_list) - 2)
+                    j = random.randint(1, len(now_list) - 2)
+                    logger.info(f"{i=} {j=}")
+                    if now_list[i][j][0] == 0:
+                        now_list[i][j][0] = 1
+                        k += 1
+                ####
+                for j in range(1, len(now_list) - 1):
+                    now_list[0][j] = now_list[len(now_list) - 2][j]
+                    now_list[len(now_list) - 1][j] = now_list[1][j]
+
+                for i in range(0, len(now_list)):
+                    now_list[i][0] = now_list[i][len(now_list) - 2]
+                    now_list[i][len(now_list) - 1] = now_list[i][1]
+
+                for i in range(len(now_list)):
+                    for j in range(len(now_list)):
+                        now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
+                    now_list[i] = tuple(now_list[i])
+                now_list = tuple(now_list)
+                logger.info(f"Сгенерированный список:")
+                for i in range(len(now_list)):
+                    logger.info(now_list[i])
+                paint_circle(canvas, now_list)
+                return now_list
+            else:
+                mbox.showerror("Ошибка", "Размерность поля не целое число")
+                logger.error("Размерность поля не целое число")
+        case 1:
+            logger.info(f"Запущен тестовый вариант номер {test}")
+            now_list = (((1,), (1,), (1,), (0,), (1,), (1,)),
+                        ((1,), (0,), (1,), (1,), (1,), (0,)),
+                        ((0,), (0,), (1,), (0,), (0,), (0,)),
+                        ((1,), (0,), (0,), (0,), (1,), (0,)),
+                        ((1,), (1,), (1,), (0,), (1,), (1,)),
+                        ((1,), (0,), (1,), (1,), (1,), (0,)))
+            paint_circle(canvas, now_list)
+            logger.info(f"сгенерированный список")
             for i in range(len(now_list)):
                 logger.info(now_list[i])
-            paint_circle(canvas, now_list)
             return now_list
-        else:
-            mbox.showerror("Ошибка", "Размерность поля не целое число")
-            logger.error("Размерность поля не целое число")
-    else:
-        logger.info(f"Запущен тестовый вариант номер {test}")
-        now_list = (((1,), (0,), (0,), (0,)),
-                    ((0,), (0,), (1,), (1,)),
-                    ((0,), (1,), (1,), (0,)),
-                    ((0,), (1,), (1,), (1,)))
-        logger.info(f"сгенерированный список")
-        for i in range(len(now_list)):
-            logger.info(now_list[i])
-        return now_list
 
 
-def generate_button(e_size: tk.Entry):
+def generate_button(e_size: tk.Entry, e_procent_zapolnenia: tk.Entry):
     # if e_size["fg"] == "red" or e_procent_zapolnenia["fg"] == "red":
     #     logger.error("Процент заполнения или размерность поля заданы не правильно")
     #     mbox.showerror("Ошибка", "Процент заполнения или размерность поля заданы не правильно")
@@ -120,73 +133,14 @@ def generate_button(e_size: tk.Entry):
 def sosedi_chek(i: int, j: int, list1: list) -> int:
     # место для описания
     logger.info("Вызвана функция sosedi_chek")
-    x = len(list1[0]) - 1
-    if i == 0:
-        if j == 0:  # угол1
-            summa = sum((list1[x][x][0], list1[x][j][0],
-                         list1[x][j + 1][0], list1[i][x][0], list1[i][j + 1][0],
-                         list1[i + 1][x][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-            print(*((list1[x][x][0], list1[x][j][0], list1[x][j + 1][0], "\n",
-                     list1[i][x][0], list1[i][j + 1][0], "\n",
-                     list1[i + 1][x][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
-        elif j == x:  # угол 2
-            summa = sum((list1[x][j - 1][0], list1[x][j][0], list1[x][0][0],
-                         list1[i][j - 1][0], list1[0][0][0], list1[i + 1][j - 1][0], list1[i + 1][j][0],
-                         list1[i + 1][0][0]))
-            print(*((list1[x][j - 1][0], list1[x][j][0], list1[x][0][0], "\n",
-                     list1[i][j - 1][0], list1[0][0][0], "\n",
-                     list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][0][0])))
-        elif j != 0 and j != x:  # сторона при i=0
-            summa = sum((list1[x][j - 1][0], list1[x][j][0], list1[x][j + 1][0],
-                         list1[i][j - 1][0], list1[i][j + 1][0],
-                         list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-            print(*((list1[x][j - 1][0], list1[x][j][0], list1[x][j + 1][0], "\n",
-                     list1[i][j - 1][0], list1[i][j + 1][0], "\n",
-                     list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
-    elif i == x:
-        if j == 0:  # угол 3
-            summa = sum((list1[i - 1][x][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                         list1[i][x][0], list1[i][j + 1][0], list1[0][x][0],
-                         list1[0][j][0], list1[0][j + 1][0]))
-            print(*((list1[i - 1][x][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
-                     list1[i][x][0], list1[i][j + 1][0], list1[0][x][0], "\n",
-                     list1[0][j][0], list1[0][j + 1][0])))
-        elif j == x:  # угол 4
-            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][0][0],
-                         list1[i][j - 1][0], list1[i][0][0],
-                         list1[0][j - 1][0], list1[0][j][0], list1[0][0][0]))
-            print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][0][0], "\n",
-                     list1[i][j - 1][0], list1[i][0][0], "\n",
-                     list1[0][j - 1][0], list1[0][j][0], list1[0][0][0])))
-        elif j != 0 and j != x:  # сторона при i=x
-            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                         list1[i][j - 1][0], list1[i][j + 1][0],
-                         list1[0][j - 1][0], list1[0][j][0], list1[0][j + 1][0]))
-            print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
-                     list1[i][j - 1][0], list1[i][j + 1][0], "\n",
-                     list1[0][j - 1][0], list1[0][j][0], list1[0][j + 1][0])))
-    elif i != 0 and i != x:
-        if j == 0:  # строна при j=0
-            summa = sum((list1[i - 1][x][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                         list1[i][x][0], list1[i][j + 1][0],
-                         list1[i + 1][x][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-            print(((list1[i - 1][x][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
-                    list1[i][x][0], list1[i][j + 1][0], "\n",
-                    list1[i + 1][x][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
-        elif j == x:  # сторона при j=x
-            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][0][0],
-                         list1[i][j - 1][0], list1[i][0][0],
-                         list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][0][0]))
-            print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][0][0], "\n",
-                     list1[i][j - 1][0], list1[i][0][0], "\n",
-                     list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][0][0])))
-        else:
-            summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
-                         list1[i][j - 1][0], list1[i][j + 1][0],
-                         list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-            print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
-                     list1[i][j - 1][0], list1[i][j + 1][0], "\n",
-                     list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
+    # x = len(list1[0]) - 1
+
+    summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
+                 list1[i][j - 1][0], list1[i][j + 1][0],
+                 list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
+    print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
+             list1[i][j - 1][0], list1[i][j + 1][0], "\n",
+             list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
     logger.info(f"{summa=}")
     print("\n")
     match summa:
@@ -237,7 +191,7 @@ def check_size(*args):
                 #######
                 global now_list
                 now_list = list_generation(e_size)
-                # paint_circle(canvas, now_list)
+
                 #######
             else:
                 e_size.config(fg='red')
@@ -258,11 +212,11 @@ def check_procent_zapolnenia(*args):
                 e_procent_zapolnenia.config(fg='black')
                 logger.info(f"procent_zapolnenia={int(e_procent_zapolnenia.get())}")
             else:
-                e_size.config(fg='red')
-                logger.info("e_size=0 или 100 и более")
+                e_procent_zapolnenia.config(fg='red')
+                logger.info("e_procent_zapolnenia=0 или 100 и более")
         else:
-            e_size.config(fg='red')
-            logger.info("e_size либо отрицательное либо текстовое значение")
+            e_procent_zapolnenia.config(fg='red')
+            logger.info("e_procent_zapolnenia либо отрицательное либо текстовое значение")
     else:
         logger.info("e_procent_zapolnenia пустое поле")
         e_procent_zapolnenia.config(fg='red')
@@ -297,8 +251,8 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
         logger.info(f"{len(now_list)=} {len(future_list)=}")
         while True:
             logger.info(f"{k=}")
-            for i in range(len(future_list)):
-                for j in range(len(future_list)):
+            for i in range(1, len(now_list) - 1):
+                for j in range(1, len(now_list) - 1):
                     logger.info(f"{i=} {j=}")
                     future_list[i][j][0] = sosedi_chek(i, j, now_list)
 
@@ -306,6 +260,16 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
             # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
             #     logger.info("конфигурации совпали, изменений больше небудет")
             #     break
+            # заполнение внешних границ
+            for j in range(1, len(future_list) - 1):
+                future_list[0][j] = future_list[len(future_list) - 2][j]
+                future_list[len(future_list) - 1][j] = future_list[1][j]
+
+            for i in range(0, len(future_list)):
+                future_list[i][0] = future_list[i][len(future_list) - 2]
+                future_list[i][len(future_list) - 1] = future_list[i][1]
+            #######
+
             l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
             paint_circle(canvas, tuple(future_list))
             canvas.update()
@@ -347,7 +311,7 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
 logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
 # logger.remove()
 root = tk.Tk()
-root.title("стартовое окно")
+root.title("стартовое окно testfile")
 width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
                                   root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
 root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
@@ -367,7 +331,7 @@ b_cancel = tk.Button(fr, text="Отмена", width=int(width_win * 0.03125))
 b_start_config = tk.Button(fr, text="Начальное состояние", width=int(width_win * 0.03125),
                            command=lambda: paint_circle(canvas, now_list))
 b_generation = tk.Button(fr, text="Генерация\nначального состояния", width=int(width_win * 0.03125),
-                         command=lambda: generate_button(e_size))
+                         command=lambda: generate_button(e_size,e_procent_zapolnenia))
 # endregion
 
 # region Label
@@ -388,10 +352,12 @@ e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 
 
 procent_zapolnenia = tk.StringVar()
 procent_zapolnenia.trace("w", check_procent_zapolnenia)
-e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, width=int(width_win * 0.03125))
+e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125),
+                                textvariable=procent_zapolnenia)
 
 e_size.insert(0, "4")  #####удалить
 e_nomer_age.insert(0, "1")  #####удалить
+e_procent_zapolnenia.insert(0, "50")  # удалить
 
 # endregion
 

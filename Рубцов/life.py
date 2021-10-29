@@ -87,7 +87,7 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
                     now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
                 now_list[i] = tuple(now_list[i])
             now_list = tuple(now_list)
-            logger.info(f"сгенерированный список")
+            logger.info(f"Сгенерированный список:")
             for i in range(len(now_list)):
                 logger.info(now_list[i])
             paint_circle(canvas, now_list)
@@ -237,7 +237,6 @@ def check_size(*args):
                 #######
                 global now_list
                 now_list = list_generation(e_size)
-                paint_circle(canvas, now_list)
                 #######
             else:
                 e_size.config(fg='red')
@@ -258,11 +257,11 @@ def check_procent_zapolnenia(*args):
                 e_procent_zapolnenia.config(fg='black')
                 logger.info(f"procent_zapolnenia={int(e_procent_zapolnenia.get())}")
             else:
-                e_size.config(fg='red')
-                logger.info("e_size=0 или 100 и более")
+                e_procent_zapolnenia.config(fg='red')
+                logger.info("e_procent_zapolnenia=0 или 100 и более")
         else:
-            e_size.config(fg='red')
-            logger.info("e_size либо отрицательное либо текстовое значение")
+            e_procent_zapolnenia.config(fg='red')
+            logger.info("e_procent_zapolnenia либо отрицательное либо текстовое значение")
     else:
         logger.info("e_procent_zapolnenia пустое поле")
         e_procent_zapolnenia.config(fg='red')
@@ -347,7 +346,7 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
 logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
 # logger.remove()
 root = tk.Tk()
-root.title("стартовое окно")
+root.title("стартовое окно life")
 width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
                                   root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
 root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
@@ -388,7 +387,8 @@ e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 
 
 procent_zapolnenia = tk.StringVar()
 procent_zapolnenia.trace("w", check_procent_zapolnenia)
-e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, width=int(width_win * 0.03125))
+e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125),
+                                textvariable=procent_zapolnenia)
 
 e_size.insert(0, "4")  #####удалить
 e_nomer_age.insert(0, "1")  #####удалить
