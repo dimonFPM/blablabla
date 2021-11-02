@@ -85,31 +85,70 @@
 # logger.info(f"сгенерированный список")
 # for i in range(len(now_list)):
 #     logger.info(now_list[i])
-import random
+# import random
+#
+# size = 3
+# #######
+# a = [[[0] for j in range(size + 2)] for i in range(size + 2)]
+# for i in range(1, len(a) - 1):
+#     for j in range(1, len(a) - 1):
+#         a[i][j] = random.randint(0, 1)
+#
+# for j in range(1, len(a) - 1):
+#     a[0][j] = a[len(a) - 2][j]
+#     a[len(a) - 1][j] = a[1][j]
+#
+# for i in range(0, len(a)):
+#     a[i][0] = a[i][len(a) - 2]
+#     a[i][len(a) - 1] = a[i][1]
+# ######3
+# print(*a, sep="\n")
+#
+#
+#
+# for i in range(1, len(a) - 1):
+#     for j in range(1, len(a) - 1):
+#         summa = sum((a[i - 1][j - 1], a[i - 1][j], a[i - 1][j + 1],
+#                     a[i][j - 1], a[i][j + 1],
+#                     a[i + 1][j - 1], a[i + 1][j], a[i + 1][j + 1]))
+#         print(f"{i=} {j=} {summa=}")
+#
 
-size = 3
-#######
-a = [[[0] for j in range(size + 2)] for i in range(size + 2)]
-for i in range(1, len(a) - 1):
-    for j in range(1, len(a) - 1):
-        a[i][j] = random.randint(0, 1)
-
-for j in range(1, len(a) - 1):
-    a[0][j] = a[len(a) - 2][j]
-    a[len(a) - 1][j] = a[1][j]
-
-for i in range(0, len(a)):
-    a[i][0] = a[i][len(a) - 2]
-    a[i][len(a) - 1] = a[i][1]
-######3
-print(*a, sep="\n")
-
+# def f2(func):
+#     def ff(x, y):
+#         print("сейчас напечатается что-то")
+#         func(x, y)
+#         print("а это напечатается после неё")
+#     return ff
+#
+# @f2
+# def f1(x, y):
+#     print(f"{x+y=}")
+#
+#
+# x, y, *_ = map(int, input("введите два числа:\n").split())
+# f1(x, y)
+# print(_)
 
 
-for i in range(1, len(a) - 1):
-    for j in range(1, len(a) - 1):
-        summa = sum((a[i - 1][j - 1], a[i - 1][j], a[i - 1][j + 1],
-                    a[i][j - 1], a[i][j + 1],
-                    a[i + 1][j - 1], a[i + 1][j], a[i + 1][j + 1]))
-        print(f"{i=} {j=} {summa=}")
-
+match k:
+    case 0:
+        future_list[i][j][2] = "#EB1101"
+    case 1:
+        future_list[i][j][2] = "#EB2413"
+    case 2:
+        future_list[i][j][2] = "#EB3323"
+    case 3:
+        future_list[i][j][2] = "#EB4032"
+    case 4:
+        future_list[i][j][2] = "#EB5547"
+    case 5:
+        future_list[i][j][2] = "#EB6459"
+    case 6:
+        future_list[i][j][2] = "#EB7D74"
+    case 7:
+        future_list[i][j][2] = "#EB9B94"
+    case 8:
+        future_list[i][j][2] = "#EBB7B5"
+    case 9:
+        future_list[i][j][2] = "#EBD0D1"

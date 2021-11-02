@@ -4,8 +4,22 @@ from loguru import logger
 import tkinter.messagebox as mbox
 import random
 
+logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
+# logger.remove()
 logger.info("начало программы")
 now_list = None  # глобальная переменная
+
+
+def time_decoration(func):
+    '''декоратор для вычисления времени работы функции'''
+
+    def decoration(*args):
+        st = time.time()
+        f = func(*args)
+        print(f"время работы: {time.time() - st}")
+        return f
+
+    return decoration
 
 
 def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
@@ -47,19 +61,44 @@ def paint_canvas(root: tk.Tk, width_win: int) -> tk.Canvas:
 
 
 def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
-    # Отрисовка кругов всего массива. Отрисовывает круги на Canvas согласно списку.
-    # На вход получает экземляр класса  Canvas и список, элементы которого требуется отрисовать. Ничего не воозвращает.
+    '''Отрисовка кругов всего массива. Отрисовывает круги на Canvas согласно списку.
+    На вход получает экземляр класса  Canvas и список, элементы которого требуется отрисовать. Ничего не воозвращает.'''
     logger.info("вызвана функция paint_circle")
     canvas.delete("circle")
     shag = (width_win - width_win * 0.07) / int(size.get())  #######################передать ширину и размер
     for i in range(1, len(circle_tuple) - 1):
         for j in range(1, len(circle_tuple) - 1):
             if circle_tuple[i][j][0] == 1:
+                match circle_tuple[i][j][1]:
+                    case 0:
+                        circle_color = "#EB1101"
+                    case 1:
+                        circle_color = "#EB2413"
+                    case 2:
+                        circle_color = "#EB3323"
+                    case 3:
+                        circle_color = "#EB4032"
+                    case 4:
+                        circle_color = "#EB5547"
+                    case 5:
+                        circle_color = "#EB6459"
+                    case 6:
+                        circle_color = "#EB7D74"
+                    case 7:
+                        circle_color = "#EB9B94"
+                    case 8:
+                        circle_color = "#EBB7B5"
+                    case 9:
+                        circle_color = "#EBD0D1"
+                    case 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19:
+                        circle_color = "blue"
+                    case _:
+                        circle_color = "black"
                 canvas.create_oval(shag * (j - 1) + width_win * 0.0065,
                                    shag * (i - 1) + width_win * 0.0065,
                                    shag * (j - 1) + shag,
                                    shag * (i - 1) + shag,
-                                   fill="red",
+                                   fill=circle_color,
                                    tag="circle")
 
 
@@ -71,7 +110,7 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
                 size = int(e_size.get())
                 count_element = size * size
                 logger.info(f"Количество клеток у поля={count_element}")
-                now_list = [[[0, True] for j in range(size + 2)] for i in range(size + 2)]
+                now_list = [[[0, 0] for j in range(size + 2)] for i in range(size + 2)]
                 ####заполенение случайных полей
                 logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
                 k = 0
@@ -105,7 +144,7 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
             else:
                 mbox.showerror("Ошибка", "Размерность поля не целое число")
                 logger.error("Размерность поля не целое число")
-        case 1:
+        case 1:  # тест 1
             logger.info(f"Запущен тестовый вариант номер {test}")
             now_list = (((1,), (1,), (1,), (0,), (1,), (1,)),
                         ((1,), (0,), (1,), (1,), (1,), (0,)),
@@ -130,7 +169,7 @@ def generate_button(e_size: tk.Entry, e_procent_zapolnenia: tk.Entry):
     now_list = list_generation(e_size)
 
 
-def sosedi_chek(i: int, j: int, list1: list) -> int:
+def sosedi_chek(i: int, j: int, list1: tuple) -> int:
     # место для описания
     logger.info("Вызвана функция sosedi_chek")
     # x = len(list1[0]) - 1
@@ -144,10 +183,10 @@ def sosedi_chek(i: int, j: int, list1: list) -> int:
     logger.info(f"{summa=}")
     print("\n")
     match summa:
-        case 0:
+        case 0 | 1:
             return 0
-        case 1:
-            return 0
+        # case 1:
+        #     return 0
         case 2:
             if list1[i][j][0]:
                 return 1
@@ -251,15 +290,20 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
         logger.info(f"{len(now_list)=} {len(future_list)=}")
         while True:
             logger.info(f"{k=}")
+            k += 1
             for i in range(1, len(now_list) - 1):
                 for j in range(1, len(now_list) - 1):
                     logger.info(f"{i=} {j=}")
                     future_list[i][j][0] = sosedi_chek(i, j, now_list)
+                    if future_list[i][j][0] == 0:
+                        future_list[i][j][1] = 0
+                    else:
+                        if death.get() == 1 and future_list[i][j][1] == 9:
+                            future_list[i][j][1] = 0
+                            future_list[i][j][0] = 0
+                        else:
+                            future_list[i][j][1] += 1
 
-            k += 1
-            # if now_list == future_list:#############################################   не сработает так как один элемент массив, а другой кортеж
-            #     logger.info("конфигурации совпали, изменений больше небудет")
-            #     break
             # заполнение внешних границ
             for j in range(1, len(future_list) - 1):
                 future_list[0][j] = future_list[len(future_list) - 2][j]
@@ -296,7 +340,7 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
                 now_list[i] = tuple(now_list[i])
             now_list = tuple(now_list)
 
-            for i in range(len(future_list)):
+            for i in range(len(future_list)):  # в этих 2 циклах я меняю tuple на list во внутренних элементах массива
                 future_list[i] = list(future_list[i])
                 for j in range(len(future_list)):
                     future_list[i][j] = list(future_list[i][j])
@@ -308,8 +352,6 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
 
 
 # region установка параметров окна приложения
-logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
-# logger.remove()
 root = tk.Tk()
 root.title("стартовое окно testfile")
 width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
@@ -331,7 +373,7 @@ b_cancel = tk.Button(fr, text="Отмена", width=int(width_win * 0.03125))
 b_start_config = tk.Button(fr, text="Начальное состояние", width=int(width_win * 0.03125),
                            command=lambda: paint_circle(canvas, now_list))
 b_generation = tk.Button(fr, text="Генерация\nначального состояния", width=int(width_win * 0.03125),
-                         command=lambda: generate_button(e_size,e_procent_zapolnenia))
+                         command=lambda: generate_button(e_size, e_procent_zapolnenia))
 # endregion
 
 # region Label
@@ -358,7 +400,12 @@ e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(wid
 e_size.insert(0, "4")  #####удалить
 e_nomer_age.insert(0, "1")  #####удалить
 e_procent_zapolnenia.insert(0, "50")  # удалить
+# endregion
 
+# region CheckBox
+death = tk.IntVar()
+death.set(0)
+cbox_death = tk.Checkbutton(fr, text="Смерть от старости", variable=death, onvalue=1, offvalue=0)
 # endregion
 
 # region Pack
@@ -372,8 +419,9 @@ b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 
 # b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_generation.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-l_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-e_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+# l_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+# e_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+cbox_death.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 # endregion
 
 
