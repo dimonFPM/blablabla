@@ -5,9 +5,14 @@ import tkinter.messagebox as mbox
 import random
 
 logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
-# logger.remove()
+logger.remove()
 logger.info("начало программы")
-now_list = None  # глобальная переменная
+
+# глобальные переменнные
+now_list = None
+
+
+####
 
 
 def time_decoration(func):
@@ -160,13 +165,12 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
 
 
 def generate_button(e_size: tk.Entry, e_procent_zapolnenia: tk.Entry):
-    # if e_size["fg"] == "red" or e_procent_zapolnenia["fg"] == "red":
-    #     logger.error("Процент заполнения или размерность поля заданы не правильно")
-    #     mbox.showerror("Ошибка", "Процент заполнения или размерность поля заданы не правильно")
-    #
-
-    global now_list
-    now_list = list_generation(e_size, procent_zapolnenia=int(procent_zapolnenia.get()))
+    if e_size["fg"] == "red" or e_procent_zapolnenia["fg"] == "red":
+        logger.error("Процент заполнения или размерность поля заданы не правильно")
+        mbox.showerror("Ошибка", "Процент заполнения или размерность поля заданы не правильно")
+    else:
+        global now_list
+        now_list = list_generation(e_size, procent_zapolnenia=int(procent_zapolnenia.get()))
 
 
 def sosedi_chek(i: int, j: int, list1: tuple) -> int:
@@ -262,9 +266,11 @@ def check_size(*args):
         e_size.config(fg='red')
 
 
+# @time_decoration
 @logger.catch()
 def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
     logger.info("Вызвана функция action")
+    cancel_check.set(False)
     if e_nomer_age["fg"] == "red":
         logger.info("Номер поколения должен быть целым не отрицатьельным числом")
         mbox.showerror("Ошибка", "Номер поколения должен быть целым не отрицательным числом")
@@ -323,6 +329,10 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
             if k == int(e_nomer_age.get()):
                 logger.info("финальное k={}".format(k))
                 break
+            elif cancel_check.get() == True:
+                logger.info("функция action была остановленна")
+                cancel_check.set(False)
+                return None
 
             # кортеж в список
             now_list = list(now_list)
@@ -368,68 +378,111 @@ fr = tk.Frame(root)
 # endregion
 
 # region Button
-b_action = tk.Button(fr, text="Поехали", command=lambda: action(now_list, e_nomer_age, e_size),
+b_action = tk.Button(fr, text="Поехали",
+                     bg="orange",
+                     command=lambda: action(now_list, e_nomer_age, e_size),
                      width=int(width_win * 0.03125))
-b_cancel = tk.Button(fr, text="Отмена", width=int(width_win * 0.03125))
-b_start_config = tk.Button(fr, text="Начальное состояние", width=int(width_win * 0.03125),
+
+cancel_check = tk.BooleanVar()
+b_cancel = tk.Button(fr, text="Остановить",
+                     width=int(width_win * 0.03125),
+                     command=lambda: cancel_check.set(True))
+
+b_start_config = tk.Button(fr, text="Начальное состояние",
+                           width=int(width_win * 0.03125),
                            command=lambda: paint_circle(canvas, now_list))
-b_generation = tk.Button(fr, text="Генерация\nначального состояния", width=int(width_win * 0.03125),
+b_generation = tk.Button(fr, text="Генерация\nначального состояния",
+                         width=int(width_win * 0.03125),
                          command=lambda: generate_button(e_size, e_procent_zapolnenia))
 # endregion
 
 # region Label
-l_size = tk.Label(fr, text="Размерность поля:", width=int(width_win * 0.03125))
-l_nomer_age = tk.Label(fr, text="Номер поколения", width=int(width_win * 0.03125))
-l_age = tk.Label(fr, text="0", width=int(width_win * 0.01156), bg="gray", height=int(width_win * 0.01156), font="16")
-l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения поля", width=int(width_win * 0.03125))
+l_size = tk.Label(fr, text="Размерность поля:",
+                  width=int(width_win * 0.03125))
+l_nomer_age = tk.Label(fr, text="Номер поколения",
+                       width=int(width_win * 0.03125))
+l_age = tk.Label(fr, text="0",
+                 width=int(width_win * 0.01156),
+                 bg="gray",
+                 height=int(width_win * 0.01156),
+                 font="16")
+l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения поля",
+                                width=int(width_win * 0.03125))
 # endregion
 
 # region Entry
 size = tk.StringVar()
 size.trace('w', check_size)
-e_size = tk.Entry(fr, justify=tk.CENTER, fg="red", textvariable=size, width=int(width_win * 0.03125))
+e_size = tk.Entry(fr, justify=tk.CENTER,
+                  fg="red",
+                  textvariable=size,
+                  width=int(width_win * 0.03125))
 
 nomer_age = tk.StringVar()
 nomer_age.trace('w', check_nomer_age)
-e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="red", width=int(width_win * 0.03125), textvariable=nomer_age)
+e_nomer_age = tk.Entry(fr, justify=tk.CENTER,
+                       fg="red", width=int(width_win * 0.03125),
+                       textvariable=nomer_age)
 
 procent_zapolnenia = tk.StringVar()
 procent_zapolnenia.trace("w", check_procent_zapolnenia)
-e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, fg="red", width=int(width_win * 0.03125),
+e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER,
+                                fg="red",
+                                width=int(width_win * 0.03125),
                                 textvariable=procent_zapolnenia)
 
-# e_size.insert(0, "4")  #####удалить
-# e_nomer_age.insert(0, "1")  #####удалить
-# e_procent_zapolnenia.insert(0, "50")  # удалить
+e_size.insert(0, "10")  #####удалить
+e_nomer_age.insert(0, "1")  #####удалить
+e_procent_zapolnenia.insert(0, "50")  # удалить
 # endregion
 
 # region CheckBox
 death = tk.IntVar()
 death.set(0)
-cbox_death = tk.Checkbutton(fr, text="Смерть от старости", variable=death, onvalue=1, offvalue=0)
+cbox_death = tk.Checkbutton(fr, text="Смерть от старости",
+                            variable=death,
+                            onvalue=1,
+                            offvalue=0)
 # endregion
 
 # region Pack
 fr.pack(side=tk.LEFT)
-l_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-l_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-e_size.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-l_nomer_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-e_nomer_age.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-# b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-b_generation.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-
-# region procent_zapolnenia
-l_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-e_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+l_age.pack(side=tk.TOP,
+           padx=int(width_win * 0.015625),
+           pady=int(width_win * 0.00781))
+l_size.pack(side=tk.TOP,
+            padx=int(width_win * 0.015625),
+            pady=int(width_win * 0.00781))
+e_size.pack(side=tk.TOP,
+            padx=int(width_win * 0.015625),
+            pady=int(width_win * 0.00781))
+l_nomer_age.pack(side=tk.TOP,
+                 padx=int(width_win * 0.015625),
+                 pady=int(width_win * 0.00781))
+e_nomer_age.pack(side=tk.TOP,
+                 padx=int(width_win * 0.015625),
+                 pady=int(width_win * 0.00781))
+l_procent_zapolnenia.pack(side=tk.TOP,
+                          padx=int(width_win * 0.015625),
+                          pady=int(width_win * 0.00781))
+e_procent_zapolnenia.pack(side=tk.TOP,
+                          padx=int(width_win * 0.015625),
+                          pady=int(width_win * 0.00781))
+b_action.pack(side=tk.TOP,
+              padx=int(width_win * 0.015625),
+              pady=int(width_win * 0.00781))
+b_cancel.pack(side=tk.TOP,
+              padx=int(width_win * 0.015625),
+              pady=int(width_win * 0.00781))
+b_start_config.pack(side=tk.TOP,
+                    padx=int(width_win * 0.015625),
+                    pady=int(width_win * 0.00781))
+b_generation.pack(side=tk.TOP,
+                  padx=int(width_win * 0.015625),
+                  pady=int(width_win * 0.00781))
+cbox_death.pack(side=tk.TOP,
+                padx=int(width_win * 0.015625),
+                pady=int(width_win * 0.00781))
 # endregion
-
-cbox_death.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-# endregion
-
-
-# paint_circle(canvas, now_list)
 
 root.mainloop()

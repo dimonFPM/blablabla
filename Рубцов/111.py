@@ -131,24 +131,36 @@
 # print(_)
 
 
-match k:
-    case 0:
-        future_list[i][j][2] = "#EB1101"
-    case 1:
-        future_list[i][j][2] = "#EB2413"
-    case 2:
-        future_list[i][j][2] = "#EB3323"
-    case 3:
-        future_list[i][j][2] = "#EB4032"
-    case 4:
-        future_list[i][j][2] = "#EB5547"
-    case 5:
-        future_list[i][j][2] = "#EB6459"
-    case 6:
-        future_list[i][j][2] = "#EB7D74"
-    case 7:
-        future_list[i][j][2] = "#EB9B94"
-    case 8:
-        future_list[i][j][2] = "#EBB7B5"
-    case 9:
-        future_list[i][j][2] = "#EBD0D1"
+# match k:
+#     case 0:
+#         future_list[i][j][2] = "#EB1101"
+#     case 1:
+#         future_list[i][j][2] = "#EB2413"
+#     case 2:
+#         future_list[i][j][2] = "#EB3323"
+#     case 3:
+#         future_list[i][j][2] = "#EB4032"
+#     case 4:
+#         future_list[i][j][2] = "#EB5547"
+#     case 5:
+#         future_list[i][j][2] = "#EB6459"
+#     case 6:
+#         future_list[i][j][2] = "#EB7D74"
+#     case 7:
+#         future_list[i][j][2] = "#EB9B94"
+#     case 8:
+#         future_list[i][j][2] = "#EBB7B5"
+#     case 9:
+#         future_list[i][j][2] = "#EBD0D1"
+
+def a(x) -> int:
+    if x == 1:
+        return 15
+    else:
+        print("не то число")
+
+
+print("начало программы")
+c = a(3)
+print(c)
+print("конец программы")
