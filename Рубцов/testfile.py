@@ -166,7 +166,7 @@ def generate_button(e_size: tk.Entry, e_procent_zapolnenia: tk.Entry):
     #
 
     global now_list
-    now_list = list_generation(e_size)
+    now_list = list_generation(e_size, procent_zapolnenia=int(procent_zapolnenia.get()))
 
 
 def sosedi_chek(i: int, j: int, list1: tuple) -> int:
@@ -198,6 +198,29 @@ def sosedi_chek(i: int, j: int, list1: tuple) -> int:
             return 0
 
 
+def check_procent_zapolnenia(*args):
+    logger.info("Вызвана функция check_procent_zapolnenia")
+    if e_procent_zapolnenia.get() != "":
+        if e_procent_zapolnenia.get().isnumeric():
+            if int(e_procent_zapolnenia.get()) > 0 and int(e_procent_zapolnenia.get()) < 100:
+                e_procent_zapolnenia.config(fg='black')
+                logger.info(f"procent_zapolnenia={int(e_procent_zapolnenia.get())}")
+                #######
+                global now_list
+                if e_size["fg"] == "black":
+                    now_list = list_generation(e_size, procent_zapolnenia=int(e_procent_zapolnenia.get()))
+                #######
+            else:
+                e_procent_zapolnenia.config(fg='red')
+                logger.info("e_procent_zapolnenia=0 или 100 и более")
+        else:
+            e_procent_zapolnenia.config(fg='red')
+            logger.info("e_procent_zapolnenia либо отрицательное либо текстовое значение")
+    else:
+        logger.info("e_procent_zapolnenia пустое поле")
+        e_procent_zapolnenia.config(fg='red')
+
+
 def check_nomer_age(*args):
     logger.info("Вызвана функция check_nomer_age")
     nomer_age = e_nomer_age.get()
@@ -227,11 +250,7 @@ def check_size(*args):
                 e_size.config(fg='black')
                 logger.info(f"size={int(e_size.get())}")
                 paint_grid(canvas, width_win, size)  # попробовать передать через необязательные аргументы функции
-                #######
-                global now_list
-                now_list = list_generation(e_size)
-
-                #######
+                check_procent_zapolnenia()
             else:
                 e_size.config(fg='red')
                 logger.info("e_size=0")
@@ -241,24 +260,6 @@ def check_size(*args):
     else:
         logger.info("e_size пустое поле")
         e_size.config(fg='red')
-
-
-def check_procent_zapolnenia(*args):
-    logger.info("Вызвана функция check_procent_zapolnenia")
-    if e_procent_zapolnenia.get() != "":
-        if e_procent_zapolnenia.get().isnumeric():
-            if int(e_procent_zapolnenia.get()) > 0 and int(e_procent_zapolnenia.get()) < 100:
-                e_procent_zapolnenia.config(fg='black')
-                logger.info(f"procent_zapolnenia={int(e_procent_zapolnenia.get())}")
-            else:
-                e_procent_zapolnenia.config(fg='red')
-                logger.info("e_procent_zapolnenia=0 или 100 и более")
-        else:
-            e_procent_zapolnenia.config(fg='red')
-            logger.info("e_procent_zapolnenia либо отрицательное либо текстовое значение")
-    else:
-        logger.info("e_procent_zapolnenia пустое поле")
-        e_procent_zapolnenia.config(fg='red')
 
 
 @logger.catch()
@@ -353,7 +354,7 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
 
 # region установка параметров окна приложения
 root = tk.Tk()
-root.title("стартовое окно testfile")
+root.title("Игра жизнь v0.5test")
 width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
                                   root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
 root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
@@ -386,20 +387,20 @@ l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения п
 # region Entry
 size = tk.StringVar()
 size.trace('w', check_size)
-e_size = tk.Entry(fr, justify=tk.CENTER, fg="black", textvariable=size, width=int(width_win * 0.03125))
+e_size = tk.Entry(fr, justify=tk.CENTER, fg="red", textvariable=size, width=int(width_win * 0.03125))
 
 nomer_age = tk.StringVar()
 nomer_age.trace('w', check_nomer_age)
-e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125), textvariable=nomer_age)
+e_nomer_age = tk.Entry(fr, justify=tk.CENTER, fg="red", width=int(width_win * 0.03125), textvariable=nomer_age)
 
 procent_zapolnenia = tk.StringVar()
 procent_zapolnenia.trace("w", check_procent_zapolnenia)
-e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, fg="black", width=int(width_win * 0.03125),
+e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER, fg="red", width=int(width_win * 0.03125),
                                 textvariable=procent_zapolnenia)
 
-e_size.insert(0, "4")  #####удалить
-e_nomer_age.insert(0, "1")  #####удалить
-e_procent_zapolnenia.insert(0, "50")  # удалить
+# e_size.insert(0, "4")  #####удалить
+# e_nomer_age.insert(0, "1")  #####удалить
+# e_procent_zapolnenia.insert(0, "50")  # удалить
 # endregion
 
 # region CheckBox
@@ -419,8 +420,12 @@ b_action.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 
 # b_cancel.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_start_config.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 b_generation.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-# l_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
-# e_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+
+# region procent_zapolnenia
+l_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+e_procent_zapolnenia.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
+# endregion
+
 cbox_death.pack(side=tk.TOP, padx=int(width_win * 0.015625), pady=int(width_win * 0.00781))
 # endregion
 
