@@ -28,7 +28,7 @@ def time_decoration(func):
 
 
 def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
-    # описание
+    '''отрисовывает сетку'''
     logger.info("вызвана функция paint_grid")
     if size > 0:  # проверка на ноль, size не может быть равным нулю
         shag = (width_win - width_win * 0.07) / size
@@ -50,9 +50,8 @@ def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
 
 
 def paint_canvas(root: tk.Tk, width_win: int) -> tk.Canvas:
-    # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
-    # На вход подаётся экземпляр класса Tk.
-    # Функция возвращает экземпляр класса Canvas.
+    '''Отрисовывает поля в процентах. Функция отрисовывает поле в процентах от разрешения экрана.
+    На вход подаётся экземпляр класса Tk. Функция возвращает экземпляр класса Canvas'''
     logger.info("вызвана функция paint_canvas")
     canvas_for_field = tk.Canvas(root, width=width_win - width_win * 0.07, height=width_win - width_win * 0.07,
                                  bg="white")
@@ -181,9 +180,9 @@ def sosedi_chek(i: int, j: int, list1: tuple) -> int:
     summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
                  list1[i][j - 1][0], list1[i][j + 1][0],
                  list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-    print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
-             list1[i][j - 1][0], list1[i][j + 1][0], "\n",
-             list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
+    # print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
+    #          list1[i][j - 1][0], list1[i][j + 1][0], "\n",
+    #          list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
     logger.info(f"{summa=}")
     print("\n")
     match summa:
@@ -266,7 +265,7 @@ def check_size(*args):
         e_size.config(fg='red')
 
 
-# @time_decoration
+@time_decoration
 @logger.catch()
 def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
     logger.info("Вызвана функция action")
@@ -274,15 +273,12 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
     if e_nomer_age["fg"] == "red":
         logger.info("Номер поколения должен быть целым не отрицатьельным числом")
         mbox.showerror("Ошибка", "Номер поколения должен быть целым не отрицательным числом")
-        # pass
     elif e_size["fg"] == "red":
         logger.info("Размерност поля должна быть целым положительным числом больше 0")
         mbox.showerror("Ошибка", "Размерность поля должна быть целым положительным числом")
-        # pass
     elif e_procent_zapolnenia["fg"] == "red":
         logger.info("Процент заполнения <0 или >=100")
         mbox.showerror("Ошибка", "Процент заполнения меньше нуля или больше или равен ста")
-        # pass
     else:
         future_list = now_list
         future_list = list(future_list)
