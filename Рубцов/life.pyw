@@ -2,6 +2,7 @@ import time
 import tkinter as tk
 from loguru import logger
 import tkinter.messagebox as mbox
+import tkinter.filedialog as fd
 import random
 
 logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
@@ -10,6 +11,7 @@ logger.info("начало программы")
 
 # глобальные переменнные
 now_list = None
+version = "v0.6"
 
 
 ####
@@ -27,8 +29,75 @@ def time_decoration(func):
     return decoration
 
 
+def open_file():
+    logger.info("Вызванна функция open_file")
+    global now_list
+    global e_size
+    global e_nomer_age
+    global e_procent_zapolnenia
+    file_name = fd.askopenfilename()
+    if file_name:
+        logger.info(f"{file_name=}")
+        try:
+            with open(file_name, "r") as file:
+                in_list = file.readlines()
+            in_list = [i.removesuffix("\n") for i in in_list]
+
+            e_size.delete(0, tk.END)
+            e_nomer_age.delete(0, tk.END)
+            e_procent_zapolnenia.delete(0, tk.END)
+
+            e_size.insert(0, in_list[2].split("=")[1])
+            e_nomer_age.insert(0, in_list[3].split("=")[1])
+            e_procent_zapolnenia.insert(0, in_list[4].split("=")[1])
+            in_list = in_list[5:]
+            in_list = [i.split() for i in in_list]
+            in_list = [list(map(int, i)) for i in in_list]
+            in_list = [[[j, 0] for j in i] for i in in_list]
+
+            for i in range(len(in_list)):
+                for j in range(len(in_list)):
+                    in_list[i][j] = tuple(in_list[i][j])
+                in_list[i] = tuple(in_list[i])
+            in_list = tuple(in_list)
+            # print(*in_list, sep="\n")
+            now_list = in_list
+            paint_circle(canvas, now_list)
+        except:
+            mbox.showerror("Ошибка", "Невозможно считать файл.")
+        finally:
+            logger.info("exit open_info")
+
+
+def save_list(now_list: tuple) -> None:
+    if all((e_size["fg"] == "black", e_nomer_age["fg"] == "black", e_procent_zapolnenia["fg"] == "black")):
+        file_name = fd.asksaveasfilename(filetypes=(("TXT file", "*.txt"),))
+        if file_name:
+            now_list = list(now_list)
+            for i in range(len(now_list)):
+                now_list[i] = list(now_list[i])
+                for j in range(len(now_list)):
+                    now_list[i][j] = list(now_list[i][j])
+
+            for i in range(len(now_list)):
+                for j in range(len(now_list)):
+                    now_list[i][j] = f"{now_list[i][j][0]}"
+                now_list[i] = " ".join(now_list[i])
+                now_list[i] = now_list[i] + "\n"
+            now_list.insert(0, "Программа жизнь\n")
+            now_list.insert(1, f"{version}\n")
+            now_list.insert(2, f"{int(e_size.get())=}\n")
+            now_list.insert(3, f"{int(e_nomer_age.get())=}\n")
+            now_list.insert(4, f"{int(e_procent_zapolnenia.get())=}\n")
+            with open(file_name + ".txt", "w") as file:
+                file.writelines(now_list)
+    else:
+        mbox.showerror("Сохранение невозможно",
+                       "Поля: 'размерность поля','номер поколения' и\n 'процент заполнения поля' некорректны.")
+
+
 def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
-    # описание
+    '''отрисовывает сетку'''
     logger.info("вызвана функция paint_grid")
     if size > 0:  # проверка на ноль, size не может быть равным нулю
         shag = (width_win - width_win * 0.07) / size
@@ -50,9 +119,8 @@ def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
 
 
 def paint_canvas(root: tk.Tk, width_win: int) -> tk.Canvas:
-    # Отрисовка поля в процентах.Функция отрисовывает поле в процентах от разрешения экрана.
-    # На вход подаётся экземпляр класса Tk.
-    # Функция возвращает экземпляр класса Canvas.
+    '''Отрисовывает поля в процентах. Функция отрисовывает поле в процентах от разрешения экрана.
+    На вход подаётся экземпляр класса Tk. Функция возвращает экземпляр класса Canvas'''
     logger.info("вызвана функция paint_canvas")
     canvas_for_field = tk.Canvas(root, width=width_win - width_win * 0.07, height=width_win - width_win * 0.07,
                                  bg="white")
@@ -107,61 +175,46 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
                                    tag="circle")
 
 
-def list_generation(e_size: tk.Entry, procent_zapolnenia=50, test=0) -> tuple:
+def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
     logger.info(f"Вызвана функция list_generation (size={int(e_size.get())}, {procent_zapolnenia=}%)")
-    match test:
-        case 0:
-            if e_size["fg"] == "black":
-                size = int(e_size.get())
-                count_element = size * size
-                logger.info(f"Количество клеток у поля={count_element}")
-                now_list = [[[0, 0] for j in range(size + 2)] for i in range(size + 2)]
-                ####заполенение случайных полей
-                logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
-                k = 0
-                while k < round(count_element * (procent_zapolnenia / 100)):
-                    logger.info(f"{k=}")
-                    i = random.randint(1, len(now_list) - 2)
-                    j = random.randint(1, len(now_list) - 2)
-                    logger.info(f"{i=} {j=}")
-                    if now_list[i][j][0] == 0:
-                        now_list[i][j][0] = 1
-                        k += 1
-                ####
-                for j in range(1, len(now_list) - 1):
-                    now_list[0][j] = now_list[len(now_list) - 2][j]
-                    now_list[len(now_list) - 1][j] = now_list[1][j]
+    if e_size["fg"] == "black":
+        size = int(e_size.get())
+        count_element = size * size
+        logger.info(f"Количество клеток у поля={count_element}")
+        now_list = [[[0, 0] for j in range(size + 2)] for i in range(size + 2)]
+        ####заполенение случайных полей
+        logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
+        k = 0
+        while k < round(count_element * (procent_zapolnenia / 100)):
+            logger.info(f"{k=}")
+            i = random.randint(1, len(now_list) - 2)
+            j = random.randint(1, len(now_list) - 2)
+            logger.info(f"{i=} {j=}")
+            if now_list[i][j][0] == 0:
+                now_list[i][j][0] = 1
+                k += 1
+        ####
+        for j in range(1, len(now_list) - 1):
+            now_list[0][j] = now_list[len(now_list) - 2][j]
+            now_list[len(now_list) - 1][j] = now_list[1][j]
 
-                for i in range(0, len(now_list)):
-                    now_list[i][0] = now_list[i][len(now_list) - 2]
-                    now_list[i][len(now_list) - 1] = now_list[i][1]
+        for i in range(0, len(now_list)):
+            now_list[i][0] = now_list[i][len(now_list) - 2]
+            now_list[i][len(now_list) - 1] = now_list[i][1]
 
-                for i in range(len(now_list)):
-                    for j in range(len(now_list)):
-                        now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
-                    now_list[i] = tuple(now_list[i])
-                now_list = tuple(now_list)
-                logger.info(f"Сгенерированный список:")
-                for i in range(len(now_list)):
-                    logger.info(now_list[i])
-                paint_circle(canvas, now_list)
-                return now_list
-            else:
-                mbox.showerror("Ошибка", "Размерность поля не целое число")
-                logger.error("Размерность поля не целое число")
-        case 1:  # тест 1
-            logger.info(f"Запущен тестовый вариант номер {test}")
-            now_list = (((1,), (1,), (1,), (0,), (1,), (1,)),
-                        ((1,), (0,), (1,), (1,), (1,), (0,)),
-                        ((0,), (0,), (1,), (0,), (0,), (0,)),
-                        ((1,), (0,), (0,), (0,), (1,), (0,)),
-                        ((1,), (1,), (1,), (0,), (1,), (1,)),
-                        ((1,), (0,), (1,), (1,), (1,), (0,)))
-            paint_circle(canvas, now_list)
-            logger.info(f"сгенерированный список")
-            for i in range(len(now_list)):
-                logger.info(now_list[i])
-            return now_list
+        for i in range(len(now_list)):
+            for j in range(len(now_list)):
+                now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
+            now_list[i] = tuple(now_list[i])
+        now_list = tuple(now_list)
+        logger.info(f"Сгенерированный список:")
+        for i in range(len(now_list)):
+            logger.info(now_list[i])
+        paint_circle(canvas, now_list)
+        return now_list
+    else:
+        mbox.showerror("Ошибка", "Размерность поля не целое число")
+        logger.error("Размерность поля не целое число")
 
 
 def generate_button(e_size: tk.Entry, e_procent_zapolnenia: tk.Entry):
@@ -181,9 +234,9 @@ def sosedi_chek(i: int, j: int, list1: tuple) -> int:
     summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
                  list1[i][j - 1][0], list1[i][j + 1][0],
                  list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0]))
-    print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
-             list1[i][j - 1][0], list1[i][j + 1][0], "\n",
-             list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
+    # print(*((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0], "\n",
+    #          list1[i][j - 1][0], list1[i][j + 1][0], "\n",
+    #          list1[i + 1][j - 1][0], list1[i + 1][j][0], list1[i + 1][j + 1][0])))
     logger.info(f"{summa=}")
     print("\n")
     match summa:
@@ -266,7 +319,7 @@ def check_size(*args):
         e_size.config(fg='red')
 
 
-# @time_decoration
+@time_decoration
 @logger.catch()
 def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
     logger.info("Вызвана функция action")
@@ -274,15 +327,12 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
     if e_nomer_age["fg"] == "red":
         logger.info("Номер поколения должен быть целым не отрицатьельным числом")
         mbox.showerror("Ошибка", "Номер поколения должен быть целым не отрицательным числом")
-        # pass
     elif e_size["fg"] == "red":
         logger.info("Размерност поля должна быть целым положительным числом больше 0")
         mbox.showerror("Ошибка", "Размерность поля должна быть целым положительным числом")
-        # pass
     elif e_procent_zapolnenia["fg"] == "red":
         logger.info("Процент заполнения <0 или >=100")
         mbox.showerror("Ошибка", "Процент заполнения меньше нуля или больше или равен ста")
-        # pass
     else:
         future_list = now_list
         future_list = list(future_list)
@@ -364,13 +414,12 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
 
 # region установка параметров окна приложения
 root = tk.Tk()
-root.title("Игра жизнь v0.5")
+root.title(f"Игра жизнь {version}")
 width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
                                   root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
 root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
 root.resizable(False, False)
 # endregion
-
 
 # region Canvas и  Frame
 canvas = paint_canvas(root, width_win)
@@ -394,6 +443,12 @@ b_start_config = tk.Button(fr, text="Начальное состояние",
 b_generation = tk.Button(fr, text="Генерация\nначального состояния",
                          width=int(width_win * 0.03125),
                          command=lambda: generate_button(e_size, e_procent_zapolnenia))
+b_openfile = tk.Button(fr, text="Открыть файл",
+                       width=int(width_win * 0.03125),
+                       command=open_file)
+b_savefile = tk.Button(fr, text="Сохранить список",
+                       width=int(width_win * 0.03125),
+                       command=lambda: save_list(now_list))
 # endregion
 
 # region Label
@@ -403,7 +458,7 @@ l_nomer_age = tk.Label(fr, text="Номер поколения",
                        width=int(width_win * 0.03125))
 l_age = tk.Label(fr, text="0",
                  width=int(width_win * 0.01156),
-                 bg="gray",
+                 # bg="gray",
                  height=int(width_win * 0.01156),
                  font="16")
 l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения поля",
@@ -480,6 +535,12 @@ b_start_config.pack(side=tk.TOP,
 b_generation.pack(side=tk.TOP,
                   padx=int(width_win * 0.015625),
                   pady=int(width_win * 0.00781))
+b_openfile.pack(side=tk.TOP,
+                padx=int(width_win * 0.015625),
+                pady=int(width_win * 0.00781))
+b_savefile.pack(side=tk.TOP,
+                padx=int(width_win * 0.015625),
+                pady=int(width_win * 0.00781))
 cbox_death.pack(side=tk.TOP,
                 padx=int(width_win * 0.015625),
                 pady=int(width_win * 0.00781))

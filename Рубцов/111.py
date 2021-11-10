@@ -152,15 +152,10 @@
 #         future_list[i][j][2] = "#EBB7B5"
 #     case 9:
 #         future_list[i][j][2] = "#EBD0D1"
-
-def a(x) -> int:
-    if x == 1:
-        return 15
-    else:
-        print("не то число")
-
-
-print("начало программы")
-c = a(3)
-print(c)
-print("конец программы")
+# import os
+# try:
+#     os.mkdir("новая папка")
+# except FileExistsError:
+#     print("данная папка уже существует")
+a = map(int, (4.5, 6.8))
+print(a)
