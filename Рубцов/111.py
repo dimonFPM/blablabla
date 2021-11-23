@@ -157,5 +157,41 @@
 #     os.mkdir("новая папка")
 # except FileExistsError:
 #     print("данная папка уже существует")
-a = map(int, (4.5, 6.8))
-print(a)
+# a = map(int, (4.5, 6.8))
+# print(a)
+# a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# # a = [i for i in a if i > 5]
+# a = list(filter(lambda x: x > 5, a))
+# print(a)
+import tkinter as tk
+
+# def new_window():
+#     # root = tk.Toplevel()
+#     root.title("второстепенное окно")
+#     root.geometry("200x200+100+100")
+#     b.pack_forget()
+#     tk.Label(root, text="запись в новом окне").pack(side=tk.TOP)
+#     # root.destroy()
+#
+#
+# root = tk.Tk()
+# root.title("главное окно")
+# root.geometry("200x200+100+100")
+# l = tk.Label(root, text="нажми на эту кнопку")
+# l.pack(side=tk.TOP)
+# b = tk.Button(root, text="новое окно", command=new_window)
+# b.pack(side=tk.TOP)
+#
+# root.mainloop()
+
+# l_age,l_size,e_size,l_nomer_age,e_nomer_age,l_procent_zapolnenia,e_procent_zapolnenia,b_action,b_cancel,b_start_config,b_generation,b_openfile,b_savefile,cbox_death
+
+a = [10, 10]
+
+
+def f():
+    s = [1, 2, *a]
+    print(s)
+
+
+f()

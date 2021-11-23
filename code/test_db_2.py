@@ -127,7 +127,7 @@ try:
     print(result)
     sqlite_connection.commit()
     cursor.close()
-    print("данные в таблицу факультет_студень успешно добавленны")
+    print("данные в таблицу факультет_студент успешно добавленны")
 except sqlite3.Error as error:
     print("Произошла ошибка в основном теле программы:", error)
 

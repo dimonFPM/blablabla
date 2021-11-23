@@ -11,12 +11,70 @@ logger.info("начало программы")
 
 # глобальные переменнные
 now_list = None
-version = "v0.6"
-
+version = "v0.7"
 
 ####
+# region установка параметров окна приложения
+root = tk.Tk()
+root.title(f"Игра жизнь {version}")
+width_win, height_win = map(int, (root.winfo_screenwidth() * 0.485,
+                                  root.winfo_screenheight() * 0.485))  # задание размеров окна приложения
+root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
+root.resizable(False, False)
+
+main_menu = tk.Menu(root)
+root.config(menu=main_menu)
+config_menu = tk.Menu(main_menu, tearoff=0)
+
+check_config = tk.StringVar()
+check_config.set("life_game")
+cancel_check = tk.BooleanVar()
 
 
+def swipe_config(check: str) -> None:
+    cancel_check.set(True)
+    match check:
+        case "diff_morgolus":
+            check_config.set("diff_morgolus")
+            e_nomer_age.delete(0, tk.END)
+            e_nomer_age.insert(0, "100")
+            e_size.delete(0, tk.END)
+            e_size.insert(0, "200")
+            e_procent_zapolnenia.delete(0, tk.END)
+            e_procent_zapolnenia.insert(0, "99")
+        case "life_game":
+            check_config.set("life_game")
+            e_nomer_age.delete(0, tk.END)
+            e_nomer_age.insert(0, "10")
+            e_size.delete(0, tk.END)
+            e_size.insert(0, "50")
+            e_procent_zapolnenia.delete(0, tk.END)
+            e_procent_zapolnenia.insert(0, "50")
+
+    #         hide_list = []
+    # for i in hide_list:
+    #     i.pack_forget()
+    # match check:
+    #     case "hide_life_game":
+    #         back_list = []
+    #     case "hide_diff":
+    #         back_list = [l_age, l_size, e_size, l_nomer_age, e_nomer_age, l_procent_zapolnenia, e_procent_zapolnenia,
+    #                      b_action, b_cancel, b_start_config, b_generation, b_openfile, b_savefile, cbox_death]
+    # for i in back_list:
+    #     i.pack(side=tk.TOP,
+    #            padx=int(width_win * 0.015625),
+    #            pady=int(width_win * 0.00781))
+
+
+config_menu.add_radiobutton(label="Диффузия с окрестность морголуса", command=lambda: swipe_config("diff_morgolus"))
+config_menu.add_radiobutton(label='Игра "Жизнь"', command=lambda: swipe_config("life_game"))
+main_menu.add_cascade(label="Варианты вычислений", menu=config_menu)
+
+
+# endregion
+
+
+# region деораторы
 def time_decoration(func):
     '''декоратор для вычисления времени работы функции'''
 
@@ -28,6 +86,8 @@ def time_decoration(func):
 
     return decoration
 
+
+# endregion
 
 def open_file():
     logger.info("Вызванна функция open_file")
@@ -107,7 +167,8 @@ def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
             canvas.create_line(0 + width_win * 0.003 + shag * (i + 1),
                                0 + width_win * 0.003,  # 2
                                0 + width_win * 0.003 + shag * (i + 1),
-                               width_win - width_win * 0.069, tag="line")
+                               width_win - width_win * 0.069,
+                               tag="line")
         for i in range(size - 1):
             canvas.create_line(0 + width_win * 0.003,
                                0 + width_win * 0.003 + shag * (i + 1),
@@ -142,31 +203,34 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     for i in range(1, len(circle_tuple) - 1):
         for j in range(1, len(circle_tuple) - 1):
             if circle_tuple[i][j][0] == 1:
-                match circle_tuple[i][j][1]:
-                    case 0:
-                        circle_color = "#EB1101"
-                    case 1:
-                        circle_color = "#EB2413"
-                    case 2:
-                        circle_color = "#EB3323"
-                    case 3:
-                        circle_color = "#EB4032"
-                    case 4:
-                        circle_color = "#EB5547"
-                    case 5:
-                        circle_color = "#EB6459"
-                    case 6:
-                        circle_color = "#EB7D74"
-                    case 7:
-                        circle_color = "#EB9B94"
-                    case 8:
-                        circle_color = "#EBB7B5"
-                    case 9:
-                        circle_color = "#EBD0D1"
-                    case 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19:
-                        circle_color = "blue"
-                    case _:
-                        circle_color = "black"
+                if check_config.get() == "life_game":
+                    match circle_tuple[i][j][1]:
+                        case 0:
+                            circle_color = "#EB1101"
+                        case 1:
+                            circle_color = "#EB2413"
+                        case 2:
+                            circle_color = "#EB3323"
+                        case 3:
+                            circle_color = "#EB4032"
+                        case 4:
+                            circle_color = "#EB5547"
+                        case 5:
+                            circle_color = "#EB6459"
+                        case 6:
+                            circle_color = "#EB7D74"
+                        case 7:
+                            circle_color = "#EB9B94"
+                        case 8:
+                            circle_color = "#EBB7B5"
+                        case 9:
+                            circle_color = "#EBD0D1"
+                        case 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19:
+                            circle_color = "blue"
+                        case _:
+                            circle_color = "black"
+                elif check_config.get() == "diff_morgolus":
+                    circle_color = "green"
                 canvas.create_oval(shag * (j - 1) + width_win * 0.0065,
                                    shag * (i - 1) + width_win * 0.0065,
                                    shag * (j - 1) + shag,
@@ -181,32 +245,51 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
         size = int(e_size.get())
         count_element = size * size
         logger.info(f"Количество клеток у поля={count_element}")
-        now_list = [[[0, 0] for j in range(size + 2)] for i in range(size + 2)]
-        ####заполенение случайных полей
-        logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
-        k = 0
-        while k < round(count_element * (procent_zapolnenia / 100)):
-            logger.info(f"{k=}")
-            i = random.randint(1, len(now_list) - 2)
-            j = random.randint(1, len(now_list) - 2)
-            logger.info(f"{i=} {j=}")
-            if now_list[i][j][0] == 0:
-                now_list[i][j][0] = 1
-                k += 1
-        ####
-        for j in range(1, len(now_list) - 1):
-            now_list[0][j] = now_list[len(now_list) - 2][j]
-            now_list[len(now_list) - 1][j] = now_list[1][j]
+        # now_list = []
+        match check_config.get():
+            case "life_game":
+                # if now_list:
+                #     now_list.clear()
+                now_list = [[[0, 0] for j in range(size + 2)] for i in range(size + 2)]
+                ####заполенение случайных полей
+                logger.info(f"Количество заполняемых клеток={round(count_element * (procent_zapolnenia / 100))}")
+                k = 0
+                while k < round(count_element * (procent_zapolnenia / 100)):
+                    logger.info(f"{k=}")
+                    i = random.randint(1, len(now_list) - 2)
+                    j = random.randint(1, len(now_list) - 2)
+                    logger.info(f"{i=} {j=}")
+                    if now_list[i][j][0] == 0:
+                        now_list[i][j][0] = 1
+                        k += 1
+                ####
+                for j in range(1, len(now_list) - 1):
+                    now_list[0][j] = now_list[len(now_list) - 2][j]
+                    now_list[len(now_list) - 1][j] = now_list[1][j]
 
-        for i in range(0, len(now_list)):
-            now_list[i][0] = now_list[i][len(now_list) - 2]
-            now_list[i][len(now_list) - 1] = now_list[i][1]
+                for i in range(0, len(now_list)):
+                    now_list[i][0] = now_list[i][len(now_list) - 2]
+                    now_list[i][len(now_list) - 1] = now_list[i][1]
 
-        for i in range(len(now_list)):
-            for j in range(len(now_list)):
-                now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
-            now_list[i] = tuple(now_list[i])
-        now_list = tuple(now_list)
+                for i in range(len(now_list)):
+                    for j in range(len(now_list)):
+                        now_list[i][j] = tuple(now_list[i][j])  # добавить вложенный список
+                    now_list[i] = tuple(now_list[i])
+                now_list = tuple(now_list)
+
+            case "diff_morgolus":
+                # if now_list:
+                #     now_list.clear()
+                now_list = [[[0] for j in range(size)] for i in range(size)]
+                for i in range(90, 110):
+                    for j in range(90, 110):
+                        now_list[i][j][0] = 1
+                for i in range(len(now_list)):
+                    for j in range(len(now_list)):
+                        now_list[i][j] = tuple(now_list[i][j])
+                    now_list[i] = tuple(now_list[i])
+                now_list = tuple(now_list)
+
         logger.info(f"Сгенерированный список:")
         for i in range(len(now_list)):
             logger.info(now_list[i])
@@ -321,7 +404,7 @@ def check_size(*args):
 
 @time_decoration
 @logger.catch()
-def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
+def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
     logger.info("Вызвана функция action")
     cancel_check.set(False)
     if e_nomer_age["fg"] == "red":
@@ -374,7 +457,8 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
             l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
             paint_circle(canvas, tuple(future_list))
             canvas.update()
-            time.sleep(0.2)
+            if int(e_size.get()) < 100:
+                time.sleep(0.2)
 
             if k == int(e_nomer_age.get()):
                 logger.info("финальное k={}".format(k))
@@ -412,15 +496,6 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry):
             #####
 
 
-# region установка параметров окна приложения
-root = tk.Tk()
-root.title(f"Игра жизнь {version}")
-width_win, height_win = map(int, (root.winfo_screenwidth() * 0.5,
-                                  root.winfo_screenheight() * 0.5))  # задание размеров окна приложения
-root.geometry(f"{int(width_win * 1.5)}x{width_win}+0+0")
-root.resizable(False, False)
-# endregion
-
 # region Canvas и  Frame
 canvas = paint_canvas(root, width_win)
 fr = tk.Frame(root)
@@ -432,7 +507,6 @@ b_action = tk.Button(fr, text="Поехали",
                      command=lambda: action(now_list, e_nomer_age, e_size),
                      width=int(width_win * 0.03125))
 
-cancel_check = tk.BooleanVar()
 b_cancel = tk.Button(fr, text="Остановить",
                      width=int(width_win * 0.03125),
                      command=lambda: cancel_check.set(True))
@@ -462,7 +536,7 @@ l_age = tk.Label(fr, text="0",
                  height=int(width_win * 0.01156),
                  font="16")
 l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения поля",
-                                width=int(width_win * 0.03125))
+                                width=int(width_win * 0.04))
 # endregion
 
 # region Entry
