@@ -74,7 +74,7 @@ main_menu.add_cascade(label="Варианты вычислений", menu=config
 # endregion
 
 
-# region деораторы
+# region декораторы
 def time_decoration(func):
     '''декоратор для вычисления времени работы функции'''
 
@@ -312,7 +312,6 @@ def generate_button(e_size: tk.Entry, e_procent_zapolnenia: tk.Entry):
 def sosedi_chek(i: int, j: int, list1: tuple) -> int:
     # место для описания
     logger.info("Вызвана функция sosedi_chek")
-    # x = len(list1[0]) - 1
 
     summa = sum((list1[i - 1][j - 1][0], list1[i - 1][j][0], list1[i - 1][j + 1][0],
                  list1[i][j - 1][0], list1[i][j + 1][0],
@@ -336,6 +335,9 @@ def sosedi_chek(i: int, j: int, list1: tuple) -> int:
             return 1
         case _:
             return 0
+
+
+# def turn(i: int, j: int, list1: tuple):
 
 
 def check_procent_zapolnenia(*args):
@@ -417,12 +419,20 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
         logger.info("Процент заполнения <0 или >=100")
         mbox.showerror("Ошибка", "Процент заполнения меньше нуля или больше или равен ста")
     else:
-        future_list = now_list
-        future_list = list(future_list)
-        for i in range(len(future_list)):
-            future_list[i] = list(future_list[i])
-            for j in range(len(future_list)):
-                future_list[i][j] = list(future_list[i][j])
+        if check_config.get() == "life_game":
+            future_list = now_list
+            future_list = list(future_list)
+            for i in range(len(future_list)):
+                future_list[i] = list(future_list[i])
+                for j in range(len(future_list)):
+                    future_list[i][j] = list(future_list[i][j])
+        elif check_config.get() == "diff_morgolus":
+            now_list = list(now_list)
+            for i in range(len(now_list)):
+                now_list[i] = list(now_list[i])
+                for j in range(len(now_list)):
+                    now_list[i][j] = list(now_list[i][j])
+            k_turn = 75
         logger.info(future_list)  # future_list - список
         # logger.info(f"{type(future_list)=}")
         k = 0
@@ -431,69 +441,132 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
         while True:
             logger.info(f"{k=}")
             k += 1
-            for i in range(1, len(now_list) - 1):
-                for j in range(1, len(now_list) - 1):
-                    logger.info(f"{i=} {j=}")
-                    future_list[i][j][0] = sosedi_chek(i, j, now_list)
-                    if future_list[i][j][0] == 0:
-                        future_list[i][j][1] = 0
-                    else:
-                        if death.get() == 1 and future_list[i][j][1] == 9:
-                            future_list[i][j][1] = 0
-                            future_list[i][j][0] = 0
-                        else:
-                            future_list[i][j][1] += 1
+            match check_config.get():
+                case "life_game":
+                    for i in range(1, len(now_list) - 1):
+                        for j in range(1, len(now_list) - 1):
+                            logger.info(f"{i=} {j=}")
+                            future_list[i][j][0] = sosedi_chek(i, j, now_list)
+                            if future_list[i][j][0] == 0:
+                                future_list[i][j][1] = 0
+                            else:
+                                if death.get() == 1 and future_list[i][j][1] == 9:
+                                    future_list[i][j][1] = 0
+                                    future_list[i][j][0] = 0
+                                else:
+                                    future_list[i][j][1] += 1
 
-            # заполнение внешних границ
-            for j in range(1, len(future_list) - 1):
-                future_list[0][j] = future_list[len(future_list) - 2][j]
-                future_list[len(future_list) - 1][j] = future_list[1][j]
+                    # заполнение внешних границ
+                    for j in range(1, len(future_list) - 1):
+                        future_list[0][j] = future_list[len(future_list) - 2][j]
+                        future_list[len(future_list) - 1][j] = future_list[1][j]
 
-            for i in range(0, len(future_list)):
-                future_list[i][0] = future_list[i][len(future_list) - 2]
-                future_list[i][len(future_list) - 1] = future_list[i][1]
-            #######
+                    for i in range(0, len(future_list)):
+                        future_list[i][0] = future_list[i][len(future_list) - 2]
+                        future_list[i][len(future_list) - 1] = future_list[i][1]
+                    #######
 
-            l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
-            paint_circle(canvas, tuple(future_list))
-            canvas.update()
-            if int(e_size.get()) < 100:
-                time.sleep(0.2)
+                    l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
+                    paint_circle(canvas, tuple(future_list))
+                    canvas.update()
+                    if int(e_size.get()) < 100:
+                        time.sleep(0.2)
 
-            if k == int(e_nomer_age.get()):
-                logger.info("финальное k={}".format(k))
-                break
-            elif cancel_check.get() == True:
-                logger.info("функция action была остановленна")
-                cancel_check.set(False)
-                return None
+                    if k == int(e_nomer_age.get()):
+                        logger.info("финальное k={}".format(k))
+                        break
+                    elif cancel_check.get() == True:
+                        logger.info("функция action была остановленна")
+                        cancel_check.set(False)
+                        return None
 
-            # кортеж в список
-            now_list = list(now_list)
-            for i in range(len(now_list)):
-                now_list[i] = list(now_list[i])
-                for j in range(len(now_list)):
-                    now_list[i][j] = list(now_list[i][j])
+                    # кортеж в список
+                    now_list = list(now_list)
+                    for i in range(len(now_list)):
+                        now_list[i] = list(now_list[i])
+                        for j in range(len(now_list)):
+                            now_list[i][j] = list(now_list[i][j])
 
-            now_list = future_list
-            ####
+                    now_list = future_list
+                    ####
 
-            # список в кортеж
-            for i in range(len(now_list)):
-                for j in range(len(now_list)):
-                    now_list[i][j] = tuple(now_list[i][j])
-                now_list[i] = tuple(now_list[i])
-            now_list = tuple(now_list)
+                    # список в кортеж
+                    for i in range(len(now_list)):
+                        for j in range(len(now_list)):
+                            now_list[i][j] = tuple(now_list[i][j])
+                        now_list[i] = tuple(now_list[i])
+                    now_list = tuple(now_list)
 
-            for i in range(len(future_list)):  # в этих 2 циклах я меняю tuple на list во внутренних элементах массива
-                future_list[i] = list(future_list[i])
-                for j in range(len(future_list)):
-                    future_list[i][j] = list(future_list[i][j])
+                    for i in range(
+                            len(future_list)):  # в этих 2 циклах я меняю tuple на list во внутренних элементах массива
+                        future_list[i] = list(future_list[i])
+                        for j in range(len(future_list)):
+                            future_list[i][j] = list(future_list[i][j])
 
-            logger.info(f"{len(now_list)=}\n{len(future_list)=}")
-            logger.info(f"{future_list=}")
-            logger.info(f"{now_list=}")
-            #####
+                    logger.info(f"{len(now_list)=}\n{len(future_list)=}")
+                    logger.info(f"{future_list=}")
+                    logger.info(f"{now_list=}")
+
+                case "diff_morgolus":
+                    t = 1 if k % 2 == 0 else 2
+                    for i in range(t, len(now_list), 2):
+                        for j in range(t, len(now_list), 2):
+                            turn_random = random.randint(0, 100)
+                            match (now_list[i][j], now_list[i][j + 1],
+                                   now_list[i + 1][j], now_list[i + 1][j + 1]):
+                                case 0, 0, 0, 0:
+                                    now_list[i][j] = now_list[i][j + 1] = now_list[i + 1][j] = now_list[i + 1][
+                                        j + 1] = 0
+                                case 1, 0, 0, 0:
+                                    if turn_random <= k_turn:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 0, 1, 0, 0
+                                    else:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 0, 0, 1, 0
+
+                                case 0, 1, 0, 0:
+                                    if turn_random <= k_turn:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 0, 0, 0, 1
+                                    else:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 1, 0, 0, 0
+                                case 0, 0, 1, 0:
+                                    if turn_random <= k_turn:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 1, 0, 0, 0
+                                    else:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 0, 0, 0, 1
+                                case 0, 0, 0, 1:
+                                    if turn_random <= k_turn:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 0, 0, 1, 0
+                                    else:
+                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                                            j + 1] = 0, 1, 0, 0
+                                case 1, 1, 0, 0:
+                                    if turn_random <= k_turn:
+                                case 0, 1, 0, 1:
+                                    if turn_random <= k_turn:
+                                case 0, 0, 1, 1:
+                                    if turn_random <= k_turn:
+                                case 1, 0, 1, 0:
+                                    if turn_random <= k_turn:
+                                case 1, 1, 0, 1:
+                                    if turn_random <= k_turn:
+                                case 0, 1, 1, 1:
+                                    if turn_random <= k_turn:
+                                case 1, 0, 1, 1:
+                                    if turn_random <= k_turn:
+                                case 1, 1, 1, 0:
+                                    if turn_random <= k_turn:
+                                case 1, 1, 1, 1:
+                                    now_list[i][j] = now_list[i][j + 1] = now_list[i + 1][j] = now_list[i + 1][
+                                        j + 1] = 1
+
+        #####
 
 
 # region Canvas и  Frame
