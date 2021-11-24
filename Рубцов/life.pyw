@@ -37,11 +37,12 @@ def swipe_config(check: str) -> None:
         case "diff_morgolus":
             check_config.set("diff_morgolus")
             e_nomer_age.delete(0, tk.END)
-            e_nomer_age.insert(0, "100")
+            e_nomer_age.insert(0, "5")
             e_size.delete(0, tk.END)
-            e_size.insert(0, "200")
+            e_size.insert(0, "50")
+            l_procent_zapolnenia["text"] = "Вероятность поворота\nпо часовой стрелке:"
             e_procent_zapolnenia.delete(0, tk.END)
-            e_procent_zapolnenia.insert(0, "99")
+            e_procent_zapolnenia.insert(0, "70")
         case "life_game":
             check_config.set("life_game")
             e_nomer_age.delete(0, tk.END)
@@ -50,6 +51,7 @@ def swipe_config(check: str) -> None:
             e_size.insert(0, "50")
             e_procent_zapolnenia.delete(0, tk.END)
             e_procent_zapolnenia.insert(0, "50")
+            l_procent_zapolnenia["text"] = "Процент заполнения поля:"
 
     #         hide_list = []
     # for i in hide_list:
@@ -156,27 +158,33 @@ def save_list(now_list: tuple) -> None:
                        "Поля: 'размерность поля','номер поколения' и\n 'процент заполнения поля' некорректны.")
 
 
-def paint_grid(canvas: tk.Canvas, width_win: int, size: int):
+def paint_grid(canvas: tk.Canvas, width_win: int, size: int) -> None:
     '''отрисовывает сетку'''
     logger.info("вызвана функция paint_grid")
-    if size > 0:  # проверка на ноль, size не может быть равным нулю
-        shag = (width_win - width_win * 0.07) / size
-        canvas.delete("line")
-        canvas.delete("circle")
-        for i in range(size - 1):  # от 0 до size-1 последняя линия это стороны квадрата они уже нарисованны
-            canvas.create_line(0 + width_win * 0.003 + shag * (i + 1),
-                               0 + width_win * 0.003,  # 2
-                               0 + width_win * 0.003 + shag * (i + 1),
-                               width_win - width_win * 0.069,
-                               tag="line")
-        for i in range(size - 1):
-            canvas.create_line(0 + width_win * 0.003,
-                               0 + width_win * 0.003 + shag * (i + 1),
-                               width_win - width_win * 0.069,
-                               0 + width_win * 0.003 + shag * (i + 1), tag="line")
-    else:
-        mbox.showerror("Ошибка", "Размерность поля меньше 1")
-        logger.error("Размерность поля не может быть меньше 1")
+    match check_config.get():
+        case "life_game":
+            if size > 0:  # проверка на ноль, size не может быть равным нулю
+                shag = (width_win - width_win * 0.07) / size
+                canvas.delete("line")
+                canvas.delete("circle")
+                for i in range(size - 1):  # от 0 до size-1 последняя линия это стороны квадрата они уже нарисованны
+                    canvas.create_line(0 + width_win * 0.003 + shag * (i + 1),
+                                       0 + width_win * 0.003,  # 2
+                                       0 + width_win * 0.003 + shag * (i + 1),
+                                       width_win - width_win * 0.069,
+                                       tag="line")
+                for i in range(size - 1):
+                    canvas.create_line(0 + width_win * 0.003,
+                                       0 + width_win * 0.003 + shag * (i + 1),
+                                       width_win - width_win * 0.069,
+                                       0 + width_win * 0.003 + shag * (i + 1), tag="line")
+            else:
+                mbox.showerror("Ошибка", "Размерность поля меньше 1")
+                logger.error("Размерность поля не может быть меньше 1")
+        case "diff_morgolus":
+            canvas.delete("line")
+            canvas.delete("circle")
+            return None
 
 
 def paint_canvas(root: tk.Tk, width_win: int) -> tk.Canvas:
@@ -200,6 +208,7 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     logger.info("вызвана функция paint_circle")
     canvas.delete("circle")
     shag = (width_win - width_win * 0.07) / int(size.get())  #######################передать ширину и размер
+    # print(f"{t=}")
     for i in range(1, len(circle_tuple) - 1):
         for j in range(1, len(circle_tuple) - 1):
             if circle_tuple[i][j][0] == 1:
@@ -231,12 +240,12 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
                             circle_color = "black"
                 elif check_config.get() == "diff_morgolus":
                     circle_color = "green"
-                canvas.create_oval(shag * (j - 1) + width_win * 0.0065,
-                                   shag * (i - 1) + width_win * 0.0065,
-                                   shag * (j - 1) + shag,
-                                   shag * (i - 1) + shag,
-                                   fill=circle_color,
-                                   tag="circle")
+                canvas.create_rectangle(shag * (j - 1) + width_win * 0.0065,
+                                        shag * (i - 1) + width_win * 0.0065,
+                                        shag * (j - 1) + shag,
+                                        shag * (i - 1) + shag,
+                                        fill=circle_color,
+                                        tag="circle")
 
 
 def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
@@ -280,16 +289,16 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
             case "diff_morgolus":
                 # if now_list:
                 #     now_list.clear()
-                now_list = [[[0] for j in range(size)] for i in range(size)]
-                for i in range(90, 110):
-                    for j in range(90, 110):
+                now_list = [[[0] for j in range(size + 2)] for i in range(size + 2)]
+                a = int(e_size.get()) * 0.2
+                for i in range(int((int(e_size.get()) / 2 - a / 2)) + 1, int(int(e_size.get()) / 2 + a / 2) + 1):
+                    for j in range(int(int(e_size.get()) / 2 - a / 2) + 1, int(int(e_size.get()) / 2 + a / 2) + 1):
                         now_list[i][j][0] = 1
                 for i in range(len(now_list)):
                     for j in range(len(now_list)):
                         now_list[i][j] = tuple(now_list[i][j])
                     now_list[i] = tuple(now_list[i])
                 now_list = tuple(now_list)
-
         logger.info(f"Сгенерированный список:")
         for i in range(len(now_list)):
             logger.info(now_list[i])
@@ -337,7 +346,110 @@ def sosedi_chek(i: int, j: int, list1: tuple) -> int:
             return 0
 
 
-# def turn(i: int, j: int, list1: tuple):
+def turn(k: int, now_list: list):
+    # print("diff_morgolus_action")
+    # print(f"{k=}")
+    k_turn = int(e_procent_zapolnenia.get())
+    t = 0 if k % 2 == 0 else 1
+    print(f"{t=}")
+    for i in range(t, len(now_list) - 1, 2):
+        for j in range(t, len(now_list) - 1, 2):
+            turn_random = random.randint(0, 100)
+            # print(f"{turn_random=}")
+            match (now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][j + 1][0]):
+                case 0, 0, 0, 0:
+                    now_list[i][j][0] = now_list[i][j + 1][0] = now_list[i + 1][j][0] = now_list[i + 1][
+                        j + 1][0] = 0
+                case 1, 0, 0, 0:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 1, 0, 0
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 0, 1, 0
+                case 0, 1, 0, 0:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 0, 0, 1
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 0, 0, 0
+                case 0, 0, 1, 0:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 0, 0, 0
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 0, 0, 1
+                case 0, 0, 0, 1:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 0, 1, 0
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 1, 0, 0
+                case 1, 1, 0, 0:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 1, 0, 1
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 0, 1, 0
+                case 0, 1, 0, 1:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 0, 1, 1
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 1, 0, 0
+                case 0, 0, 1, 1:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 0, 1, 0
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 1, 0, 1
+                case 1, 0, 1, 0:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 1, 0, 0
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 0, 1, 1
+                case 1, 1, 0, 1:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 1, 1, 1
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 1, 1, 0
+                case 0, 1, 1, 1:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 0, 1, 1
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 1, 0, 1
+                case 1, 0, 1, 1:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 1, 1, 0
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 0, 1, 1, 1
+                case 1, 1, 1, 0:
+                    if turn_random <= k_turn:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 1, 0, 1
+                    else:
+                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
+                            j + 1][0] = 1, 0, 1, 1
+                case 1, 1, 1, 1:
+                    now_list[i][j][0] = now_list[i][j + 1][0] = now_list[i + 1][j][0] = now_list[i + 1][
+                        j + 1][0] = 1
+        for i in range(len(now_list)):
+            now_list[i][- 1][0] = now_list[i][0][0] = 0
+            now_list[0][i][0] = now_list[-1][i][0] = 0
 
 
 def check_procent_zapolnenia(*args):
@@ -407,7 +519,8 @@ def check_size(*args):
 @time_decoration
 @logger.catch()
 def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
-    logger.info("Вызвана функция action")
+    logger.info(f"Вызвана функция action")
+    logger.info(f"{check_config.get()=}")
     cancel_check.set(False)
     if e_nomer_age["fg"] == "red":
         logger.info("Номер поколения должен быть целым не отрицатьельным числом")
@@ -426,18 +539,18 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
                 future_list[i] = list(future_list[i])
                 for j in range(len(future_list)):
                     future_list[i][j] = list(future_list[i][j])
+            logger.info(future_list)
         elif check_config.get() == "diff_morgolus":
+            # print("diff_morgolus_2")
             now_list = list(now_list)
             for i in range(len(now_list)):
                 now_list[i] = list(now_list[i])
                 for j in range(len(now_list)):
                     now_list[i][j] = list(now_list[i][j])
-            k_turn = 75
-        logger.info(future_list)  # future_list - список
+        # future_list - список
         # logger.info(f"{type(future_list)=}")
         k = 0
         l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
-        logger.info(f"{len(now_list)=} {len(future_list)=}")
         while True:
             logger.info(f"{k=}")
             k += 1
@@ -502,69 +615,24 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
                         future_list[i] = list(future_list[i])
                         for j in range(len(future_list)):
                             future_list[i][j] = list(future_list[i][j])
-
                     logger.info(f"{len(now_list)=}\n{len(future_list)=}")
                     logger.info(f"{future_list=}")
                     logger.info(f"{now_list=}")
 
                 case "diff_morgolus":
-                    t = 1 if k % 2 == 0 else 2
-                    for i in range(t, len(now_list), 2):
-                        for j in range(t, len(now_list), 2):
-                            turn_random = random.randint(0, 100)
-                            match (now_list[i][j], now_list[i][j + 1],
-                                   now_list[i + 1][j], now_list[i + 1][j + 1]):
-                                case 0, 0, 0, 0:
-                                    now_list[i][j] = now_list[i][j + 1] = now_list[i + 1][j] = now_list[i + 1][
-                                        j + 1] = 0
-                                case 1, 0, 0, 0:
-                                    if turn_random <= k_turn:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 0, 1, 0, 0
-                                    else:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 0, 0, 1, 0
-
-                                case 0, 1, 0, 0:
-                                    if turn_random <= k_turn:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 0, 0, 0, 1
-                                    else:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 1, 0, 0, 0
-                                case 0, 0, 1, 0:
-                                    if turn_random <= k_turn:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 1, 0, 0, 0
-                                    else:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 0, 0, 0, 1
-                                case 0, 0, 0, 1:
-                                    if turn_random <= k_turn:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 0, 0, 1, 0
-                                    else:
-                                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
-                                            j + 1] = 0, 1, 0, 0
-                                case 1, 1, 0, 0:
-                                    if turn_random <= k_turn:
-                                case 0, 1, 0, 1:
-                                    if turn_random <= k_turn:
-                                case 0, 0, 1, 1:
-                                    if turn_random <= k_turn:
-                                case 1, 0, 1, 0:
-                                    if turn_random <= k_turn:
-                                case 1, 1, 0, 1:
-                                    if turn_random <= k_turn:
-                                case 0, 1, 1, 1:
-                                    if turn_random <= k_turn:
-                                case 1, 0, 1, 1:
-                                    if turn_random <= k_turn:
-                                case 1, 1, 1, 0:
-                                    if turn_random <= k_turn:
-                                case 1, 1, 1, 1:
-                                    now_list[i][j] = now_list[i][j + 1] = now_list[i + 1][j] = now_list[i + 1][
-                                        j + 1] = 1
+                    turn(k, now_list)
+                    # print(*now_list, sep="\n")
+                    l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
+                    paint_circle(canvas, now_list)
+                    # print(type(now_list))
+                    canvas.update()
+                    if k == int(e_nomer_age.get()):
+                        logger.info("финальное k={}".format(k))
+                        break
+                    elif cancel_check.get() == True:
+                        logger.info("функция action была остановленна")
+                        cancel_check.set(False)
+                        return None
 
         #####
 
@@ -601,14 +669,14 @@ b_savefile = tk.Button(fr, text="Сохранить список",
 # region Label
 l_size = tk.Label(fr, text="Размерность поля:",
                   width=int(width_win * 0.03125))
-l_nomer_age = tk.Label(fr, text="Номер поколения",
+l_nomer_age = tk.Label(fr, text="Номер поколения:",
                        width=int(width_win * 0.03125))
 l_age = tk.Label(fr, text="0",
                  width=int(width_win * 0.01156),
                  # bg="gray",
                  height=int(width_win * 0.01156),
                  font="16")
-l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения поля",
+l_procent_zapolnenia = tk.Label(fr, text="Процент заполнения поля:",
                                 width=int(width_win * 0.04))
 # endregion
 
@@ -641,7 +709,7 @@ e_procent_zapolnenia.insert(0, "50")  # удалить
 # region CheckBox
 death = tk.IntVar()
 death.set(0)
-cbox_death = tk.Checkbutton(fr, text="Смерть от старости",
+cbox_death = tk.Checkbutton(fr, text="Смерть от старости:",
                             variable=death,
                             onvalue=1,
                             offvalue=0)

@@ -163,6 +163,7 @@
 # # a = [i for i in a if i > 5]
 # a = list(filter(lambda x: x > 5, a))
 # print(a)
+import random
 import tkinter as tk
 
 # def new_window():
@@ -186,12 +187,28 @@ import tkinter as tk
 
 # l_age,l_size,e_size,l_nomer_age,e_nomer_age,l_procent_zapolnenia,e_procent_zapolnenia,b_action,b_cancel,b_start_config,b_generation,b_openfile,b_savefile,cbox_death
 
-a = [10, 10]
+# a = [10, 10]
+#
+#
+# def f():
+#     s = [1, 2, *a]
+#     print(s)
+#
+#
+# f()
+# match (1, 1, 3, 1):
+#     case 1, 1, 1, 1:
+#         print("1,1,1,1")
+#     case 1, 1, 0, 1:
+#         print("1,1,0,1")
+#     case _:
+#         print("нет подходящих вариантов")
+#
+# for i in range(0,10,2):
+#     print(i)
+import random
 
+a = [[random.randint(0, 10) for j in range(10)] for i in range(10)]
+print(*a,sep="\n")
 
-def f():
-    s = [1, 2, *a]
-    print(s)
-
-
-f()
+print("\n",a[-1])
