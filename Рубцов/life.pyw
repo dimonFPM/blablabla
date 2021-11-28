@@ -37,12 +37,18 @@ def swipe_config(check: str) -> None:
         case "diff_morgolus":
             check_config.set("diff_morgolus")
             e_nomer_age.delete(0, tk.END)
-            e_nomer_age.insert(0, "5")
+            e_nomer_age.insert(0, "5000")
             e_size.delete(0, tk.END)
-            e_size.insert(0, "50")
+            e_size.insert(0, "150")
             l_procent_zapolnenia["text"] = "Вероятность поворота\nпо часовой стрелке:"
             e_procent_zapolnenia.delete(0, tk.END)
-            e_procent_zapolnenia.insert(0, "70")
+            e_procent_zapolnenia.insert(0, "50")
+            for i in [b_generation, b_savefile, b_openfile, cbox_death]:
+                i.pack_forget()
+            cbox_grah.pack(side=tk.TOP,
+                           padx=int(width_win * 0.015625),
+                           pady=int(width_win * 0.00781))
+
         case "life_game":
             check_config.set("life_game")
             e_nomer_age.delete(0, tk.END)
@@ -52,6 +58,11 @@ def swipe_config(check: str) -> None:
             e_procent_zapolnenia.delete(0, tk.END)
             e_procent_zapolnenia.insert(0, "50")
             l_procent_zapolnenia["text"] = "Процент заполнения поля:"
+            cbox_grah.pack_forget()
+            for i in [b_generation, b_openfile, b_savefile, cbox_death]:
+                i.pack(side=tk.TOP,
+                       padx=int(width_win * 0.015625),
+                       pady=int(width_win * 0.00781))
 
     #         hide_list = []
     # for i in hide_list:
@@ -90,6 +101,7 @@ def time_decoration(func):
 
 
 # endregion
+
 
 def open_file():
     logger.info("Вызванна функция open_file")
@@ -207,12 +219,14 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     На вход получает экземляр класса  Canvas и список, элементы которого требуется отрисовать. Ничего не воозвращает.'''
     logger.info("вызвана функция paint_circle")
     canvas.delete("circle")
-    shag = (width_win - width_win * 0.07) / int(size.get())  #######################передать ширину и размер
+    # shag = (width_win - width_win * 0.07) / int(size.get())  #######################передать ширину и размер
     # print(f"{t=}")
     for i in range(1, len(circle_tuple) - 1):
         for j in range(1, len(circle_tuple) - 1):
             if circle_tuple[i][j][0] == 1:
                 if check_config.get() == "life_game":
+                    shag = (width_win - width_win * 0.07) / int(
+                        size.get())  #######################передать ширину и размер
                     match circle_tuple[i][j][1]:
                         case 0:
                             circle_color = "#EB1101"
@@ -238,14 +252,24 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
                             circle_color = "blue"
                         case _:
                             circle_color = "black"
+                    canvas.create_oval(shag * (j - 1) + width_win * 0.0065,
+                                       shag * (i - 1) + width_win * 0.0065,
+                                       shag * (j - 1) + shag - width_win * 0.0019,
+                                       shag * (i - 1) + shag - width_win * 0.0019,
+                                       fill=circle_color,
+                                       # outline=circle_color,
+                                       tag="circle")
                 elif check_config.get() == "diff_morgolus":
-                    circle_color = "green"
-                canvas.create_rectangle(shag * (j - 1) + width_win * 0.0065,
-                                        shag * (i - 1) + width_win * 0.0065,
-                                        shag * (j - 1) + shag,
-                                        shag * (i - 1) + shag,
-                                        fill=circle_color,
-                                        tag="circle")
+                    shag = (width_win - width_win * 0.07) / int(
+                        size.get())  #######################передать ширину и размер
+                    rectangle_color = "green"
+                    canvas.create_rectangle(shag * (j - 1),
+                                            shag * (i - 1),
+                                            shag * (j - 1) + shag + width_win * 0.0019,
+                                            shag * (i - 1) + shag + width_win * 0.0019,
+                                            fill=rectangle_color,
+                                            outline=rectangle_color,
+                                            tag="circle")
 
 
 def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
@@ -287,8 +311,10 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
                 now_list = tuple(now_list)
 
             case "diff_morgolus":
-                # if now_list:
-                #     now_list.clear()
+                #####
+                a = int(e_size.get())
+                size = a
+                #####
                 now_list = [[[0] for j in range(size + 2)] for i in range(size + 2)]
                 a = int(e_size.get()) * 0.2
                 for i in range(int((int(e_size.get()) / 2 - a / 2)) + 1, int(int(e_size.get()) / 2 + a / 2) + 1):
@@ -351,7 +377,7 @@ def turn(k: int, now_list: list):
     # print(f"{k=}")
     k_turn = int(e_procent_zapolnenia.get())
     t = 0 if k % 2 == 0 else 1
-    print(f"{t=}")
+    # print(f"{t=}")
     for i in range(t, len(now_list) - 1, 2):
         for j in range(t, len(now_list) - 1, 2):
             turn_random = random.randint(0, 100)
@@ -642,6 +668,7 @@ canvas = paint_canvas(root, width_win)
 fr = tk.Frame(root)
 # endregion
 
+# region life_game интерфейс
 # region Button
 b_action = tk.Button(fr, text="Поехали",
                      bg="orange",
@@ -760,5 +787,12 @@ cbox_death.pack(side=tk.TOP,
                 padx=int(width_win * 0.015625),
                 pady=int(width_win * 0.00781))
 # endregion
+# endregion
+# region diff_morgolus
 
+grah = tk.IntVar()
+grah.set(0)
+cbox_grah = tk.Checkbutton(fr, text="Построение графика", variable=grah, offvalue=0, onvalue=1)
+
+# endregion
 root.mainloop()

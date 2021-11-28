@@ -206,9 +206,38 @@ import tkinter as tk
 #
 # for i in range(0,10,2):
 #     print(i)
-import random
+# import random
 
-a = [[random.randint(0, 10) for j in range(10)] for i in range(10)]
-print(*a,sep="\n")
+# a = [[random.randint(0, 10) for j in range(10)] for i in range(10)]
+# print(*a,sep="\n")
+#
+# print("\n",a[-1])
 
-print("\n",a[-1])
+#
+# a = [i for i in range(2, 11, 2)]
+# print(a)
+
+import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+
+x, y = np.mgrid[0:5:1, 0:5:1]
+print(x)
+print(y)
+
+# y = np.array([i for i in range(10)])
+z = [[0 for _ in range(10)] for _ in range(10)]
+z = [[0, 0, 0, 0, 0],
+     [0, 1, 1, 1, 0],
+     [0, 1, 1, 1, 0],
+     [0, 1, 1, 2, 0],
+     [0, 0, 0, 0, 0]]
+
+z = np.array(z)
+
+fig = plt.figure()
+
+ax = fig.add_subplot(111, projection='3d')
+# ax.legend()
+ax.plot_surface(x, y, z)
+plt.show()
