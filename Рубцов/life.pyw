@@ -30,55 +30,6 @@ check_config = tk.StringVar()
 check_config.set("life_game")
 cancel_check = tk.BooleanVar()
 
-
-def swipe_config(check: str) -> None:
-    cancel_check.set(True)
-    match check:
-        case "diff_morgolus":
-            check_config.set("diff_morgolus")
-            e_nomer_age.delete(0, tk.END)
-            e_nomer_age.insert(0, "5000")
-            e_size.delete(0, tk.END)
-            e_size.insert(0, "150")
-            l_procent_zapolnenia["text"] = "Вероятность поворота\nпо часовой стрелке:"
-            e_procent_zapolnenia.delete(0, tk.END)
-            e_procent_zapolnenia.insert(0, "50")
-            for i in [b_generation, b_savefile, b_openfile, cbox_death]:
-                i.pack_forget()
-            cbox_grah.pack(side=tk.TOP,
-                           padx=int(width_win * 0.015625),
-                           pady=int(width_win * 0.00781))
-
-        case "life_game":
-            check_config.set("life_game")
-            e_nomer_age.delete(0, tk.END)
-            e_nomer_age.insert(0, "10")
-            e_size.delete(0, tk.END)
-            e_size.insert(0, "50")
-            e_procent_zapolnenia.delete(0, tk.END)
-            e_procent_zapolnenia.insert(0, "50")
-            l_procent_zapolnenia["text"] = "Процент заполнения поля:"
-            cbox_grah.pack_forget()
-            for i in [b_generation, b_openfile, b_savefile, cbox_death]:
-                i.pack(side=tk.TOP,
-                       padx=int(width_win * 0.015625),
-                       pady=int(width_win * 0.00781))
-
-    #         hide_list = []
-    # for i in hide_list:
-    #     i.pack_forget()
-    # match check:
-    #     case "hide_life_game":
-    #         back_list = []
-    #     case "hide_diff":
-    #         back_list = [l_age, l_size, e_size, l_nomer_age, e_nomer_age, l_procent_zapolnenia, e_procent_zapolnenia,
-    #                      b_action, b_cancel, b_start_config, b_generation, b_openfile, b_savefile, cbox_death]
-    # for i in back_list:
-    #     i.pack(side=tk.TOP,
-    #            padx=int(width_win * 0.015625),
-    #            pady=int(width_win * 0.00781))
-
-
 config_menu.add_radiobutton(label="Диффузия с окрестность морголуса", command=lambda: swipe_config("diff_morgolus"))
 config_menu.add_radiobutton(label='Игра "Жизнь"', command=lambda: swipe_config("life_game"))
 main_menu.add_cascade(label="Варианты вычислений", menu=config_menu)
@@ -101,6 +52,45 @@ def time_decoration(func):
 
 
 # endregion
+
+
+def swipe_config(check: str) -> None:
+    cancel_check.set(True)
+    match check:
+        case "diff_morgolus":
+            check_config.set("diff_morgolus")
+            e_nomer_age.delete(0, tk.END)
+            e_nomer_age.insert(0, "5000")
+            e_size.delete(0, tk.END)
+            e_size.insert(0, "150")
+            l_procent_zapolnenia["text"] = "Вероятность поворота\nпо часовой стрелке:"
+            e_procent_zapolnenia.delete(0, tk.END)
+            e_procent_zapolnenia.insert(0, "50")
+            for i in [b_generation, b_savefile, b_openfile, cbox_death]:
+                i.pack_forget()
+            cbox_grah.pack(side=tk.TOP,
+                           padx=int(width_win * 0.015625),
+                           pady=int(width_win * 0.00781))
+            # l_okr.pack(side=tk.TOP,
+            #            padx=int(width_win * 0.015625),
+            #            pady=int(width_win * 0.00781))
+            # e_okr.pack(side=tk.TOP,
+            #            padx=int(width_win * 0.015625),
+            #            pady=int(width_win * 0.00781))
+        case "life_game":
+            check_config.set("life_game")
+            e_nomer_age.delete(0, tk.END)
+            e_nomer_age.insert(0, "10")
+            e_size.delete(0, tk.END)
+            e_size.insert(0, "50")
+            e_procent_zapolnenia.delete(0, tk.END)
+            e_procent_zapolnenia.insert(0, "50")
+            l_procent_zapolnenia["text"] = "Процент заполнения поля:"
+            cbox_grah.pack_forget()
+            for i in [b_generation, b_openfile, b_savefile, cbox_death]:
+                i.pack(side=tk.TOP,
+                       padx=int(width_win * 0.015625),
+                       pady=int(width_win * 0.00781))
 
 
 def open_file():
@@ -478,6 +468,19 @@ def turn(k: int, now_list: list):
             now_list[0][i][0] = now_list[-1][i][0] = 0
 
 
+# def check_okr(*args):
+#     if e_okr.get() != "":
+#         if e_okr.get().isnumeric():
+#             if int(e_okr.get()) > 0 and int(e_okr.get()) <= 4:
+#                 e_okr["fg"] = "black"
+#             else:
+#                 e_okr["fg"] = "red"
+#         else:
+#             e_okr["fg"] = "red"
+#     else:
+#         e_okr["fg"] = "red"
+
+
 def check_procent_zapolnenia(*args):
     logger.info("Вызвана функция check_procent_zapolnenia")
     if e_procent_zapolnenia.get() != "":
@@ -788,11 +791,19 @@ cbox_death.pack(side=tk.TOP,
                 pady=int(width_win * 0.00781))
 # endregion
 # endregion
-# region diff_morgolus
+# region diff_morgolus интерфейс
 
 grah = tk.IntVar()
 grah.set(0)
-cbox_grah = tk.Checkbutton(fr, text="Построение графика", variable=grah, offvalue=0, onvalue=1)
+cbox_grah = tk.Checkbutton(fr, text="Построение графика",
+                           variable=grah,
+                           offvalue=0,
+                           onvalue=1)
+# l_okr = tk.Label(fr, text="Размер окрестрости",
+#                  width=int(width_win * 0.03125))
+# okr = tk.StringVar()
+# okr.trace("w", check_okr)
+# e_okr = tk.Entry(fr, justify=tk.CENTER, fg="black", textvariable=okr, width=int(width_win * 0.03125))
 
 # endregion
 root.mainloop()
