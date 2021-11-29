@@ -4,6 +4,8 @@ from loguru import logger
 import tkinter.messagebox as mbox
 import tkinter.filedialog as fd
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 
 logger.add("log_life.log", level="DEBUG", format="{time} {level} {message}", compression="zip", rotation="10 MB")
 logger.remove()
@@ -80,9 +82,9 @@ def swipe_config(check: str) -> None:
         case "life_game":
             check_config.set("life_game")
             e_nomer_age.delete(0, tk.END)
-            e_nomer_age.insert(0, "10")
+            e_nomer_age.insert(0, "100")
             e_size.delete(0, tk.END)
-            e_size.insert(0, "50")
+            e_size.insert(0, "30")
             e_procent_zapolnenia.delete(0, tk.END)
             e_procent_zapolnenia.insert(0, "50")
             l_procent_zapolnenia["text"] = "Процент заполнения поля:"
@@ -160,6 +162,13 @@ def save_list(now_list: tuple) -> None:
                        "Поля: 'размерность поля','номер поколения' и\n 'процент заполнения поля' некорректны.")
 
 
+def grath(z_list: list, e_size: tk.Entry) -> None:
+    z_list = [[z_list[i][j][0] for j in range()] for i in range(len)]
+    print(z_list)
+    # r = " ".join(str(i) for i in z_list)
+    # with open("rez.txt", "w") as file:
+
+
 def paint_grid(canvas: tk.Canvas, width_win: int, size: int) -> None:
     '''отрисовывает сетку'''
     logger.info("вызвана функция paint_grid")
@@ -213,8 +222,8 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
     # print(f"{t=}")
     for i in range(1, len(circle_tuple) - 1):
         for j in range(1, len(circle_tuple) - 1):
-            if circle_tuple[i][j][0] == 1:
-                if check_config.get() == "life_game":
+            if check_config.get() == "life_game":
+                if circle_tuple[i][j][0] == 1:
                     shag = (width_win - width_win * 0.07) / int(
                         size.get())  #######################передать ширину и размер
                     match circle_tuple[i][j][1]:
@@ -249,7 +258,8 @@ def paint_circle(canvas: tk.Canvas, circle_tuple: tuple):
                                        fill=circle_color,
                                        # outline=circle_color,
                                        tag="circle")
-                elif check_config.get() == "diff_morgolus":
+            elif check_config.get() == "diff_morgolus":
+                if circle_tuple[i][j] == 1:
                     shag = (width_win - width_win * 0.07) / int(
                         size.get())  #######################передать ширину и размер
                     rectangle_color = "green"
@@ -305,14 +315,14 @@ def list_generation(e_size: tk.Entry, procent_zapolnenia=50) -> tuple:
                 a = int(e_size.get())
                 size = a
                 #####
-                now_list = [[[0] for j in range(size + 2)] for i in range(size + 2)]
+                now_list = [[0 for j in range(size + 2)] for i in range(size + 2)]
                 a = int(e_size.get()) * 0.2
                 for i in range(int((int(e_size.get()) / 2 - a / 2)) + 1, int(int(e_size.get()) / 2 + a / 2) + 1):
                     for j in range(int(int(e_size.get()) / 2 - a / 2) + 1, int(int(e_size.get()) / 2 + a / 2) + 1):
-                        now_list[i][j][0] = 1
+                        now_list[i][j] = 1
                 for i in range(len(now_list)):
-                    for j in range(len(now_list)):
-                        now_list[i][j] = tuple(now_list[i][j])
+                    # for j in range(len(now_list)):
+                    #     now_list[i][j] = tuple(now_list[i][j])
                     now_list[i] = tuple(now_list[i])
                 now_list = tuple(now_list)
         logger.info(f"Сгенерированный список:")
@@ -372,100 +382,100 @@ def turn(k: int, now_list: list):
         for j in range(t, len(now_list) - 1, 2):
             turn_random = random.randint(0, 100)
             # print(f"{turn_random=}")
-            match (now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][j + 1][0]):
+            match (now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][j + 1]):
                 case 0, 0, 0, 0:
-                    now_list[i][j][0] = now_list[i][j + 1][0] = now_list[i + 1][j][0] = now_list[i + 1][
-                        j + 1][0] = 0
+                    now_list[i][j] = now_list[i][j + 1] = now_list[i + 1][j] = now_list[i + 1][
+                        j + 1] = 0
                 case 1, 0, 0, 0:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 1, 0, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 1, 0, 0
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 0, 1, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 0, 1, 0
                 case 0, 1, 0, 0:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 0, 0, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 0, 0, 1
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 0, 0, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 0, 0, 0
                 case 0, 0, 1, 0:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 0, 0, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 0, 0, 0
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 0, 0, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 0, 0, 1
                 case 0, 0, 0, 1:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 0, 1, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 0, 1, 0
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 1, 0, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 1, 0, 0
                 case 1, 1, 0, 0:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 1, 0, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 1, 0, 1
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 0, 1, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 0, 1, 0
                 case 0, 1, 0, 1:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 0, 1, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 0, 1, 1
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 1, 0, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 1, 0, 0
                 case 0, 0, 1, 1:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 0, 1, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 0, 1, 0
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 1, 0, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 1, 0, 1
                 case 1, 0, 1, 0:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 1, 0, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 1, 0, 0
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 0, 1, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 0, 1, 1
                 case 1, 1, 0, 1:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 1, 1, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 1, 1, 1
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 1, 1, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 1, 1, 0
                 case 0, 1, 1, 1:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 0, 1, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 0, 1, 1
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 1, 0, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 1, 0, 1
                 case 1, 0, 1, 1:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 1, 1, 0
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 1, 1, 0
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 0, 1, 1, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 0, 1, 1, 1
                 case 1, 1, 1, 0:
                     if turn_random <= k_turn:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 1, 0, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 1, 0, 1
                     else:
-                        now_list[i][j][0], now_list[i][j + 1][0], now_list[i + 1][j][0], now_list[i + 1][
-                            j + 1][0] = 1, 0, 1, 1
+                        now_list[i][j], now_list[i][j + 1], now_list[i + 1][j], now_list[i + 1][
+                            j + 1] = 1, 0, 1, 1
                 case 1, 1, 1, 1:
-                    now_list[i][j][0] = now_list[i][j + 1][0] = now_list[i + 1][j][0] = now_list[i + 1][
-                        j + 1][0] = 1
+                    now_list[i][j] = now_list[i][j + 1] = now_list[i + 1][j] = now_list[i + 1][
+                        j + 1] = 1
         for i in range(len(now_list)):
-            now_list[i][- 1][0] = now_list[i][0][0] = 0
-            now_list[0][i][0] = now_list[-1][i][0] = 0
+            now_list[i][- 1] = now_list[i][0] = 0
+            now_list[0][i] = now_list[-1][i] = 0
 
 
 # def check_okr(*args):
@@ -574,12 +584,14 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
             now_list = list(now_list)
             for i in range(len(now_list)):
                 now_list[i] = list(now_list[i])
-                for j in range(len(now_list)):
-                    now_list[i][j] = list(now_list[i][j])
+                # for j in range(len(now_list)):
+                #     now_list[i][j] = list(now_list[i][j])
+            grath_list = []
         # future_list - список
         # logger.info(f"{type(future_list)=}")
         k = 0
         l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
+
         while True:
             logger.info(f"{k=}")
             k += 1
@@ -652,6 +664,14 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
                     turn(k, now_list)
                     # print(*now_list, sep="\n")
                     l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
+
+                    if k == 1:
+                        # or k == int(e_nomer_age.get()) or k == int(e_nomer_age.get()) // 2
+                        grath_list.append(now_list[0::])
+                        print(f"{k=}")
+                        # grath(now_list, e_size)
+                        # print("что- то не так как надо")
+
                     paint_circle(canvas, now_list)
                     # print(type(now_list))
                     canvas.update()
@@ -662,7 +682,9 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
                         logger.info("функция action была остановленна")
                         cancel_check.set(False)
                         return None
-
+        print(f"{len(grath_list)=}")
+        if check_config.get() == "diff_morgolus":
+            grath(grath_list, e_size)
         #####
 
 
