@@ -13,7 +13,7 @@ logger.info("начало программы")
 
 # глобальные переменнные
 now_list = None
-version = "v0.7"
+version = "v0.8"
 
 ####
 # region установка параметров окна приложения
@@ -70,9 +70,9 @@ def swipe_config(check: str) -> None:
             e_procent_zapolnenia.insert(0, "50")
             for i in [b_generation, b_savefile, b_openfile, cbox_death]:
                 i.pack_forget()
-            cbox_grah.pack(side=tk.TOP,
-                           padx=int(width_win * 0.015625),
-                           pady=int(width_win * 0.00781))
+            # cbox_grah.pack(side=tk.TOP,
+            #                padx=int(width_win * 0.015625),
+            #                pady=int(width_win * 0.00781))
             # l_okr.pack(side=tk.TOP,
             #            padx=int(width_win * 0.015625),
             #            pady=int(width_win * 0.00781))
@@ -88,7 +88,7 @@ def swipe_config(check: str) -> None:
             e_procent_zapolnenia.delete(0, tk.END)
             e_procent_zapolnenia.insert(0, "50")
             l_procent_zapolnenia["text"] = "Процент заполнения поля:"
-            cbox_grah.pack_forget()
+            # cbox_grah.pack_forget()
             for i in [b_generation, b_openfile, b_savefile, cbox_death]:
                 i.pack(side=tk.TOP,
                        padx=int(width_win * 0.015625),
@@ -162,11 +162,29 @@ def save_list(now_list: tuple) -> None:
                        "Поля: 'размерность поля','номер поколения' и\n 'процент заполнения поля' некорректны.")
 
 
-def grath(z_list: list, e_size: tk.Entry) -> None:
-    z_list = [[z_list[i][j][0] for j in range()] for i in range(len)]
-    print(z_list)
-    # r = " ".join(str(i) for i in z_list)
-    # with open("rez.txt", "w") as file:
+# def grath(z_list: list, e_size: tk.Entry) -> None:
+#     size = int(e_size.get())
+#     for i in z_list:
+#         x, y = np.mgrid[0:size:1, 0:size:1]
+#         print(len(x))
+#         print(len(y))
+#         # y = np.array([i for i in range(5)])
+#
+#         # z = [[0 for _ in range(5)] for _ in range(5)]
+#         # z = [[0, 0, 0, 0, 0],
+#         #      [0, 1, 1, 1, 0],
+#         #      [0, 1, 1, 1, 0],
+#         #      [0, 1, 1, 2, 0],
+#         #      [0, 0, 0, 0, 0]]
+#
+#         z = np.array(i)
+#
+#         fig = plt.figure()
+#
+#         ax = fig.add_subplot(111, projection='3d')
+#         # ax.legend()
+#         ax.plot_surface(x, y, z)
+#         plt.show()
 
 
 def paint_grid(canvas: tk.Canvas, width_win: int, size: int) -> None:
@@ -665,14 +683,14 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
                     # print(*now_list, sep="\n")
                     l_age.config(text=f"{k}")  # надо бы передать в функцию объект класса Label
 
-                    if k == 1:
-                        # or k == int(e_nomer_age.get()) or k == int(e_nomer_age.get()) // 2
-                        grath_list.append(now_list[0::])
-                        print(f"{k=}")
-                        # grath(now_list, e_size)
-                        # print("что- то не так как надо")
+                    # if k == 1 or k == int(e_nomer_age.get()) or k == int(e_nomer_age.get()) // 2:
+                    #     grath_list.append(now_list[0::])
+                    #     print(f"{k=}")
 
                     paint_circle(canvas, now_list)
+                    if int(e_size.get()) <= 30:
+                        time.sleep(0.5)
+
                     # print(type(now_list))
                     canvas.update()
                     if k == int(e_nomer_age.get()):
@@ -682,9 +700,10 @@ def action(now_list: tuple, e_nomer_age: tk.Entry, e_size: tk.Entry) -> None:
                         logger.info("функция action была остановленна")
                         cancel_check.set(False)
                         return None
-        print(f"{len(grath_list)=}")
-        if check_config.get() == "diff_morgolus":
-            grath(grath_list, e_size)
+
+        # if check_config.get() == "diff_morgolus":
+        #     print(f"{len(grath_list)=}")
+        #     grath(grath_list, e_size)
         #####
 
 
@@ -753,8 +772,8 @@ e_procent_zapolnenia = tk.Entry(fr, justify=tk.CENTER,
                                 width=int(width_win * 0.03125),
                                 textvariable=procent_zapolnenia)
 
-e_size.insert(0, "10")  #####удалить
-e_nomer_age.insert(0, "1")  #####удалить
+e_size.insert(0, "30")  #####удалить
+e_nomer_age.insert(0, "100")  #####удалить
 e_procent_zapolnenia.insert(0, "50")  # удалить
 # endregion
 
@@ -815,12 +834,12 @@ cbox_death.pack(side=tk.TOP,
 # endregion
 # region diff_morgolus интерфейс
 
-grah = tk.IntVar()
-grah.set(0)
-cbox_grah = tk.Checkbutton(fr, text="Построение графика",
-                           variable=grah,
-                           offvalue=0,
-                           onvalue=1)
+# grah = tk.IntVar()
+# grah.set(0)
+# cbox_grah = tk.Checkbutton(fr, text="Построение графика",
+#                            variable=grah,
+#                            offvalue=0,
+#                            onvalue=1)
 # l_okr = tk.Label(fr, text="Размер окрестрости",
 #                  width=int(width_win * 0.03125))
 # okr = tk.StringVar()

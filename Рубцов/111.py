@@ -228,14 +228,7 @@ def f(size: int, list: list) -> None:
     x, y = np.mgrid[0:size:1, 0:size:1]
     print(len(x))
     print(len(y))
-    # y = np.array([i for i in range(5)])
 
-    # z = [[0 for _ in range(5)] for _ in range(5)]
-    # z = [[0, 0, 0, 0, 0],
-    #      [0, 1, 1, 1, 0],
-    #      [0, 1, 1, 1, 0],
-    #      [0, 1, 1, 2, 0],
-    #      [0, 0, 0, 0, 0]]
 
     z = np.array(list)
 
@@ -249,7 +242,7 @@ def f(size: int, list: list) -> None:
 
 size = 200
 list1 = [[random.randint(0, 3) for j in range(size)] for i in range(size)]
-f(size,list1[::])
+f(size, list1[::])
 #
 #
 # import random
